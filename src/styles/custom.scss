@@ -1,0 +1,29 @@
+.logo-text {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 400;
+  line-height: 36px;
+  letter-spacing: 0.2em;
+}
+
+.p-center {
+  display: table-cell;
+  vertical-align: middle;
+  height: 20px;
+}
+
+.font-inter {
+  font-family: "Inter";
+}
+
+.svg-white {
+  fill: white;
+}
+
+.banner-gradient {
+  background: linear-gradient(
+    270deg,
+    rgba(4, 140, 224, 0.1) 0%,
+    rgba(4, 107, 224, 0) 100%
+  );
+}
