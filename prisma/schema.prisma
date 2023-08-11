@@ -1,0 +1,32 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model TokenReward {
+  id              Int       @id @default(autoincrement())
+  walletAddress   String    @unique
+  tokenAmount     String
+  registeredAt    DateTime  @default(now())
+}
+
+model NFTReward {
+  id              Int       @id @default(autoincrement())
+  walletAddress   String    @unique
+  tokenAmount     String
+  registeredAt    DateTime  @default(now())
+}
+
+model SocietyReward {
+  id              Int       @id @default(autoincrement())
+  walletAddress   String    @unique
+  tokenAmount     String
+  registeredAt    DateTime  @default(now())
+}
