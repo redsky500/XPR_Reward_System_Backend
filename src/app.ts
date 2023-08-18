@@ -14,7 +14,7 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-// app.use(routes);
+app.use(routes);
 
 // Serves images
 // app.use(express.static('public'));
