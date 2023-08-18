@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model TokenReward {
+  id            Int      @id @default(autoincrement())
+  walletAddress String   @unique
+  tokenAmount   String
+  registeredAt  DateTime @default(now())
+}
+
+model XRPReward {
+  id            Int      @id @default(autoincrement())
+  walletAddress String   @unique
+  tokenAmount   String
+  registeredAt  DateTime @default(now())
+}
+
+model OPLReward {
+  id            Int      @id @default(autoincrement())
+  walletAddress String   @unique
+  tokenAmount   String
+  registeredAt  DateTime @default(now())
+}
+
+model SocietyReward {
+  id            Int      @id @default(autoincrement())
+  walletAddress String   @unique
+  tokenAmount   String
+  registeredAt  DateTime @default(now())
+}
