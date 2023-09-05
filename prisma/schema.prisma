@@ -3,33 +3,32 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
 model TokenReward {
-  id            Int      @id @default(autoincrement())
+  id       String    @id @default(auto()) @map("_id") @db.ObjectId
   walletAddress String   @unique
   tokenAmount   String
   registeredAt  DateTime @default(now())
 }
 
 model XRPReward {
-  id            Int      @id @default(autoincrement())
+  id       String    @id @default(auto()) @map("_id") @db.ObjectId
   walletAddress String   @unique
   tokenAmount   String
   registeredAt  DateTime @default(now())
 }
 
 model OPLReward {
-  id            Int      @id @default(autoincrement())
+  id       String    @id @default(auto()) @map("_id") @db.ObjectId
   walletAddress String   @unique
-  tokenAmount   String
   registeredAt  DateTime @default(now())
 }
 
 model SocietyReward {
-  id            Int      @id @default(autoincrement())
+  id       String    @id @default(auto()) @map("_id") @db.ObjectId
   walletAddress String   @unique
   tokenAmount   String
   registeredAt  DateTime @default(now())
