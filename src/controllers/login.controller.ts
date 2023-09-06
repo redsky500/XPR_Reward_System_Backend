@@ -10,7 +10,6 @@ const router = Router();
 router.post(
   "/OPLLogin",
   async (req: Request, res: Response, next: NextFunction) => {
-    console.log("here1", req);
     const { walletAddress, tx } = req.body;
     if (!walletAddress) {
       throw new Error("Please provide walletAddress!");

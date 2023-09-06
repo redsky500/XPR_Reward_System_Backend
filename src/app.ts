@@ -6,7 +6,8 @@ import routes from './routes/routes';
 import HttpException from './utils/http-exception.model';
 import mongoose from "mongoose";
 import { XummSdk } from 'xumm-sdk';
-import xrpl from 'xrpl';
+import runOpulenceDrops from './services/distribute.service';
+import { Client } from 'xrpl';
 
 const xumm = new XummSdk();
 
@@ -53,43 +54,41 @@ mongoose.connect(
   process.env.DATABASE_URL as string
 );
 
-const runAirdrops = () => {
-  const options = {
-    label: 'AirdropWallet', // Optional label for wallet
-  };
+const runDrops = () => {
+  const PUBLIC_SERVER = "wss://xrp.getblock.io/58137926-e27b-4c5d-985c-b3f0e98fbcab/mainnet/";
+  const client = new Client(PUBLIC_SERVER);
+
+  function callFunctionAtSpecificTime(targetTime: Date, callback: ()=>void) {
+    const currentTime = new Date();
+    const timeDifference = targetTime.getTime() - currentTime.getTime();
   
-  const PUBLIC_SERVER = "wss://xrplcluster.com/"
-  const client = new xrpl.Client(PUBLIC_SERVER)
+    // If the target time has already passed for this day, add 24 hours to the time difference
+    // const timeToNextCall = timeDifference < 0 ? timeDifference + 24 * 60 * 60 * 1000 : timeDifference;
+    const timeToNextCall = 10e3; // set 10s for testing purpose to call drop per 10s
 
-  client.connect().then(async () => {
-    const request = {
-      "TransactionType": "Payment",
-      "Destination": "rMNfauFqNMwJyzEQE2sN4WcrCfLTanVKhq",
-      "Amount": "1",
-      "Memos": [
-        {
-          "Memo": {
-            "MemoData": "testing airdrop"
-          }
-        }
-      ]
+    setTimeout(() => {
+      callback(); // Call the desired function
+      callFunctionAtSpecificTime(targetTime, callback); // Schedule the next call
+    }, timeToNextCall);
+  }
+  
+  // Example usage:
+  const targetTime = new Date();
+  targetTime.setHours(12, 0, 0, 0); // Set the target time as 12:00:00 (noon)
+  
+  callFunctionAtSpecificTime(targetTime, async () => {
+    try {
+      if(!client.isConnected()) await client.connect();
+      await runOpulenceDrops(client);
+    } catch (error) {
+      console.log("error occurred while running drops...:", error);
     }
-
-    const wallet = xrpl.Wallet.fromSecret("008155348570061908338171314490370515413730054706") // Test secret; don't use for real
-
-    const prepared = await client.autofill({
-      "TransactionType": "Payment",
-      "Account": wallet.address,
-      // "Amount": xrpl.xrpToDrops("1"),
-      "Amount": "1",
-      "Destination": "rMNfauFqNMwJyzEQE2sN4WcrCfLTanVKhq"
-    });
-    const signed = wallet.sign(prepared);
-    client.submitAndWait(signed.tx_blob);
-  })
+  });
 }
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.info(`server up on port ${PORT}`);
+  console.info(`server running on port ${PORT}`);
+
+  runDrops();
 });

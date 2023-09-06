@@ -3,6 +3,7 @@ import OpulenceStaker from "../models/OpulenceStaker"
 
 const createOPLRewardUser = async (walletAddress: string) => {
   try {
+    console.log("registering...");
     const oPLReward = await OpulenceStaker.findOne({
       walletAddress,
     });
@@ -18,6 +19,7 @@ const createOPLRewardUser = async (walletAddress: string) => {
     const staker = await OpulenceStaker.create({
       walletAddress
     });
+    console.log("new staker", staker);
     return "User added successfully!"
   } catch {
     return "Unable to create user! Database error";
