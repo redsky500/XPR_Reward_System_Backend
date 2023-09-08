@@ -1,22 +1,18 @@
 import { NextFunction, Request, Response, Router } from "express";
-import createOPLRewardUser from "../services/oplReward.service";
+import registerOpulenceStaker from "../services/staking.service";
 import createSocietyRewardUser from "../services/societyReward.service";
 import createTokenRewardUser from "../services/tokenReward.service";
 import createXRPRewardUser from "../services/xrpReward.service";
-import auth from "../utils/auth";
 
 const router = Router();
 
 router.post(
-  "/OPLLogin",
+  "/OPLStaking",
   async (req: Request, res: Response, next: NextFunction) => {
-    const { walletAddress, tx } = req.body;
-    if (!walletAddress) {
-      throw new Error("Please provide walletAddress!");
-    }
+    const { txjson, user_token } = req.body;
     try {
-      const user = await createOPLRewardUser(walletAddress);
-      res.json(user);
+      const data = await registerOpulenceStaker(txjson, user_token);
+      res.json(data);
     } catch (error) {
       next(error);
     }
@@ -24,7 +20,7 @@ router.post(
 );
 
 router.post(
-  "/societyLogin",
+  "/societyStaking",
   async (req: Request, res: Response, next: NextFunction) => {
     const { walletAddress, tokenAmount } = req.body;
     if (!walletAddress) {
@@ -40,7 +36,7 @@ router.post(
 );
 
 router.post(
-  "/tokenLogin",
+  "/tokenStaking",
   async (req: Request, res: Response, next: NextFunction) => {
     const { walletAddress, tokenAmount } = req.body;
     if (!walletAddress) {
@@ -56,7 +52,7 @@ router.post(
 );
 
 router.post(
-  "/XRPLogin",
+  "/XRPStaking",
   async (req: Request, res: Response, next: NextFunction) => {
     const { walletAddress, tokenAmount } = req.body;
     if (!walletAddress) {

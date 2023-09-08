@@ -5,11 +5,8 @@ import bodyParser from 'body-parser';
 import routes from './routes/routes';
 import HttpException from './utils/http-exception.model';
 import mongoose from "mongoose";
-import { XummSdk } from 'xumm-sdk';
 import runOpulenceDrops from './services/distribute.service';
 import { Client } from 'xrpl';
-
-const xumm = new XummSdk();
 
 const app = express();
 
@@ -55,7 +52,7 @@ mongoose.connect(
 );
 
 const runDrops = () => {
-  const PUBLIC_SERVER = "wss://xrp.getblock.io/58137926-e27b-4c5d-985c-b3f0e98fbcab/mainnet/";
+  const PUBLIC_SERVER = process.env.XRPL_URL as string;
   const client = new Client(PUBLIC_SERVER);
 
   function callFunctionAtSpecificTime(targetTime: Date, callback: ()=>void) {
@@ -90,5 +87,5 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.info(`server running on port ${PORT}`);
 
-  runDrops();
+  // runDrops();
 });

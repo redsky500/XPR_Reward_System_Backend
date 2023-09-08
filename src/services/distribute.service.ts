@@ -33,6 +33,8 @@ async function fetchData(client: Client) {
     );
     balanceData.push(...balances);
 
+    console.log(balances);
+
     if (stakers.length === 0) {
       break; // No more documents left, exit loop
     }
