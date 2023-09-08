@@ -5,6 +5,12 @@ import OpulenceStaker from "../models/OpulenceStaker"
 const opulenceToken = XRPL_CURRENCY_LIST[0];
 const dailyReward = Math.floor(POOL_AMOUNT / 365);
 
+/**
+ * Fetch all stakers from the database, get their opulence balance, and return an array of the data.
+ * 
+ * @param {object} client - XRPL Client object
+ * @returns {Array} - Returns an array of staker data
+ */
 async function fetchData(client: Client) {
   const pageSize = 100; // Number of documents to retrieve per query
   let page = 0;
@@ -45,6 +51,12 @@ async function fetchData(client: Client) {
   return {balanceData, totalBalance}
 }
 
+/**
+ * Fetch balances by calling the fetchData function and distribute drops to stakers according to their holding amounts.
+ * 
+ * @param {object} client - XRPL Client object
+ * @returns {void}
+ */
 const runDrops = async (client: Client) => {
   const {balanceData, totalBalance} = await fetchData(client);
   const wallet = Wallet.fromSecret(process.env.WALLET_SEED as string) // Test secret; don't use for real

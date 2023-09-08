@@ -4,6 +4,14 @@ import { XummGetPayloadResponse, XummJsonTransaction, XummPostPayloadBodyJson } 
 
 const xumm = new XummSdk();
 
+/**
+ * Create xumm payload and wait for user's interaction and return the result
+ * @param {Object} data - Payload data and user token
+ * @param {Function} func - Callback function called when the user signs the request
+ * @returns {Object} - Returns an object with status and data properties
+ *                    status can be "success", "signed", "failed", or "rejected"
+ *                    data can be a string or the response type
+ */
 const requestXummTransaction = async (data: XummPostPayloadBodyJson | XummJsonTransaction, func?: () => Promise<void>) => {
   const payload = await xumm.payload.createAndSubscribe(data, eventMessage => {
     if (Object.keys(eventMessage.data).indexOf('opened') > -1) {
