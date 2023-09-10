@@ -2,6 +2,7 @@ import prisma from "../../prisma/prisma-client";
 import OpulenceStaker from "../models/OpulenceStaker"
 import { XummJsonTransaction, XummPostPayloadBodyJson } from 'xumm-sdk/dist/src/types';
 import requestXummTransaction from "../utils/xumm-utils"
+import { BURN_AMOUNT } from "../config";
 
 /**
  * Create a payload, subscribe it, save the staker's walletAddress to the database after the user signs,
@@ -26,6 +27,13 @@ const registerOpulenceStaker = async (txjson: XummJsonTransaction, user_token: s
     return {
       status: "failed",
       data: "Please provide a user_token!"
+    };
+  }
+
+  if ((txjson?.Amount as any)?.value !== BURN_AMOUNT.toString()) {
+    return {
+      status: "failed",
+      data: "Please provide a correct amount!"
     };
   }
 

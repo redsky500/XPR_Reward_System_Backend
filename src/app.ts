@@ -60,8 +60,8 @@ const runDrops = () => {
     const timeDifference = targetTime.getTime() - currentTime.getTime();
   
     // If the target time has already passed for this day, add 24 hours to the time difference
-    // const timeToNextCall = timeDifference < 0 ? timeDifference + 24 * 60 * 60 * 1000 : timeDifference;
-    const timeToNextCall = 10e3; // set 10s for testing purpose to call drop per 10s
+    const timeToNextCall = timeDifference < 0 ? timeDifference + 24 * 60 * 60 * 1000 : timeDifference;
+    // const timeToNextCall = 10e3; // set 10s for testing purpose to call drop per 10s
 
     setTimeout(() => {
       callback(); // Call the desired function
@@ -87,5 +87,5 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.info(`server running on port ${PORT}`);
 
-  // runDrops();
+  runDrops();
 });

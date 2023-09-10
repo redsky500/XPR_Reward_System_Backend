@@ -2,7 +2,8 @@ import { IssuedCurrency } from "xrpl";
 
 export const OPUL_REWARD_MAX_PERCENT = 10;
 
-export const POOL_AMOUNT = 2e3;
+export const POOL_AMOUNT = 2e8;
+export const BURN_AMOUNT = 2e3;
 
 export const XRPL_CURRENCY_LIST: {
   symbol: string;
