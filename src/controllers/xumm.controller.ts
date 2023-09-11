@@ -1,8 +1,5 @@
 import { NextFunction, Request, Response, Router } from "express";
 import runXummTransaction from "../services/xumm.service";
-import createSocietyRewardUser from "../services/societyReward.service";
-import createTokenRewardUser from "../services/tokenReward.service";
-import createXRPRewardUser from "../services/xrpReward.service";
 
 const router = Router();
 

@@ -1,6 +1,6 @@
 import { AccountLinesResponse, AccountLinesTrustline, Client, Transaction, Wallet } from 'xrpl';
-import { OPUL_REWARD_MAX_PERCENT, XRPL_CURRENCY_LIST, POOL_AMOUNT } from '../config'
-import OpulenceStaker from "../models/OpulenceStaker"
+import { OPUL_REWARD_MAX_PERCENT, XRPL_CURRENCY_LIST, POOL_AMOUNT } from '../../config'
+import OpulenceEarn from "../../models/OpulenceEarn"
 
 const opulenceToken = XRPL_CURRENCY_LIST[0];
 const dailyReward = Math.floor(POOL_AMOUNT / 365);
@@ -19,7 +19,7 @@ async function fetchData(client: Client) {
   let totalBalance = 0;
 
   while (true) {
-    const stakers = await OpulenceStaker.find()
+    const stakers = await OpulenceEarn.find()
       .skip(page * pageSize)
       .limit(pageSize);
     

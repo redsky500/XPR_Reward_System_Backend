@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response, Router } from "express";
-import registerOpulenceStaker from "../services/staking.service";
-import createSocietyRewardUser from "../services/societyReward.service";
-import createTokenRewardUser from "../services/tokenReward.service";
-import createXRPRewardUser from "../services/xrpReward.service";
-import OpulenceStaker from "../models/OpulenceStaker"
+import registerOpulenceEarn from "../services/reward/earn.service";
+import createSocietyStake from "../services/reward/societyStake.service";
+import createOpulenceStake from "../services/reward/stake.service";
+import createOpulenceFaucet from "../services/reward/faucet.service";
+import OpulenceEarn from "../models/OpulenceEarn"
 
 const router = Router();
 
@@ -12,7 +12,7 @@ router.get(
   async (req: Request, res: Response, next: NextFunction) => {
     const { account } = req.params;
     try {
-      const data = await OpulenceStaker.findOne({
+      const data = await OpulenceEarn.findOne({
         walletAddress: account,
       });
       res.json(data?.walletAddress);
@@ -27,7 +27,7 @@ router.post(
   async (req: Request, res: Response, next: NextFunction) => {
     const { account, user_token } = req.body;
     try {
-      const data = await registerOpulenceStaker(account, user_token);
+      const data = await registerOpulenceEarn(account, user_token);
       res.json(data);
     } catch (error) {
       next(error);
@@ -43,7 +43,7 @@ router.post(
       throw new Error("Please provide walletAddress!");
     }
     try {
-      const user = await createSocietyRewardUser(walletAddress, tokenAmount);
+      const user = await createSocietyStake(walletAddress, tokenAmount);
       res.json(user);
     } catch (error) {
       next(error);
@@ -59,7 +59,7 @@ router.post(
       throw new Error("Please provide walletAddress!");
     }
     try {
-      const user = await createTokenRewardUser(walletAddress, tokenAmount);
+      const user = await createOpulenceStake(walletAddress, tokenAmount);
       res.json(user);
     } catch (error) {
       next(error);
@@ -75,7 +75,7 @@ router.post(
       throw new Error("Please provide walletAddress!");
     }
     try {
-      const user = await createXRPRewardUser(walletAddress, tokenAmount);
+      const user = await createOpulenceFaucet(walletAddress, tokenAmount);
       res.json(user);
     } catch (error) {
       next(error);

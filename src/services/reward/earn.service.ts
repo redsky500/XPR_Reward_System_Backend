@@ -1,8 +1,7 @@
-import prisma from "../../prisma/prisma-client";
-import OpulenceStaker from "../models/OpulenceStaker"
+import OpulenceEarn from "../../models/OpulenceEarn"
 import { XummJsonTransaction, XummPostPayloadBodyJson } from 'xumm-sdk/dist/src/types';
-import requestXummTransaction from "../utils/xumm-utils"
-import { BURN_ADDRESS, BURN_AMOUNT, XRPL_CURRENCY_LIST } from "../config";
+import requestXummTransaction from "../../utils/xumm-utils"
+import { BURN_ADDRESS, BURN_AMOUNT, XRPL_CURRENCY_LIST } from "../../config";
 
 /**
  * Create a payload, subscribe it, save the staker's walletAddress to the database after the user signs,
@@ -15,7 +14,7 @@ import { BURN_ADDRESS, BURN_AMOUNT, XRPL_CURRENCY_LIST } from "../config";
  *                    `status` can be "success", "signed", "failed", or "rejected"
  *                    `data` represents the response
  */
-const registerOpulenceStaker = async (account: string, user_token: string) => {
+const registerOpulenceEarn = async (account: string, user_token: string) => {
   if (!account) {
     return {
       status: "failed",
@@ -31,7 +30,7 @@ const registerOpulenceStaker = async (account: string, user_token: string) => {
   }
 
   const walletAddress = account;
-  const OPLReward = await OpulenceStaker.findOne({
+  const OPLReward = await OpulenceEarn.findOne({
     walletAddress,
   });
   if (OPLReward) {
@@ -64,7 +63,7 @@ const registerOpulenceStaker = async (account: string, user_token: string) => {
    * @returns {void}
    */
   const createStaker = async () => {
-    await OpulenceStaker.create({
+    await OpulenceEarn.create({
       walletAddress
     });
   }
@@ -74,4 +73,4 @@ const registerOpulenceStaker = async (account: string, user_token: string) => {
   return result;
 };
 
-export default registerOpulenceStaker;
+export default registerOpulenceEarn;

@@ -1,5 +1,4 @@
-import prisma from "../../prisma/prisma-client";
-import OpulenceStaker from "../models/OpulenceStaker"
+import OpulenceEarn from "../models/OpulenceEarn"
 import { XummJsonTransaction, XummPostPayloadBodyJson } from 'xumm-sdk/dist/src/types';
 import requestXummTransaction from "../utils/xumm-utils"
 

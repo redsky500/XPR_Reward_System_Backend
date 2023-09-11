@@ -5,7 +5,7 @@ import bodyParser from 'body-parser';
 import routes from './routes/routes';
 import HttpException from './utils/http-exception.model';
 import mongoose from "mongoose";
-import runOpulenceDrops from './services/distribute.service';
+import runOpulenceDrops from './services/distribute/distribute.earn.service';
 import { Client } from 'xrpl';
 
 const app = express();

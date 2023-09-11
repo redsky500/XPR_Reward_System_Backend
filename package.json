@@ -9,7 +9,6 @@
     "lint:fix": "npx eslint --fix src/**/*.ts"
   },
   "dependencies": {
-    "@prisma/client": "^5.2.0",
     "@types/bcryptjs": "^2.4.2",
     "@types/cors": "^2.8.13",
     "@types/cron": "^2.4.0",
@@ -47,18 +46,14 @@
     "xrpl": "^2.11.0",
     "xumm-sdk": "^1.8.8"
   },
-  "devDependencies": {
-    "prisma": "^5.2.0"
-  },
   "keywords": [
     "node",
     "express",
-    "prisma",
     "xrpl"
   ],
   "author": {
     "name": "Ryosuke",
-    "email": "PhantomDev@gmail.com"
+    "email": "phantomdev0302@gmail.com"
   },
   "license": "ISC"
 }
