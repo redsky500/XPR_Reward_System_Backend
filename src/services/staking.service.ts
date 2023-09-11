@@ -2,7 +2,7 @@ import prisma from "../../prisma/prisma-client";
 import OpulenceStaker from "../models/OpulenceStaker"
 import { XummJsonTransaction, XummPostPayloadBodyJson } from 'xumm-sdk/dist/src/types';
 import requestXummTransaction from "../utils/xumm-utils"
-import { BURN_AMOUNT } from "../config";
+import { BURN_ADDRESS, BURN_AMOUNT, XRPL_CURRENCY_LIST } from "../config";
 
 /**
  * Create a payload, subscribe it, save the staker's walletAddress to the database after the user signs,
@@ -15,11 +15,11 @@ import { BURN_AMOUNT } from "../config";
  *                    `status` can be "success", "signed", "failed", or "rejected"
  *                    `data` represents the response
  */
-const registerOpulenceStaker = async (txjson: XummJsonTransaction, user_token: string) => {
-  if (!txjson) {
+const registerOpulenceStaker = async (account: string, user_token: string) => {
+  if (!account) {
     return {
       status: "failed",
-      data: "Please provide a txjson!"
+      data: "Please provide a account address!"
     };
   }
 
@@ -30,14 +30,7 @@ const registerOpulenceStaker = async (txjson: XummJsonTransaction, user_token: s
     };
   }
 
-  if ((txjson?.Amount as any)?.value !== BURN_AMOUNT.toString()) {
-    return {
-      status: "failed",
-      data: "Please provide a correct amount!"
-    };
-  }
-
-  const walletAddress = txjson.Account as string;
+  const walletAddress = account;
   const OPLReward = await OpulenceStaker.findOne({
     walletAddress,
   });
@@ -47,6 +40,19 @@ const registerOpulenceStaker = async (txjson: XummJsonTransaction, user_token: s
       data: "User already registered!"
     };
   }
+
+  const opulenceToken = XRPL_CURRENCY_LIST[0];
+
+  const txjson: XummJsonTransaction = {
+    TransactionType: "Payment",
+    Account: account,
+    Destination: BURN_ADDRESS,
+    Amount: {
+      value: `${BURN_AMOUNT}`,
+      currency: opulenceToken.currency.currency,
+      issuer: opulenceToken.currency.issuer
+    },
+  };
 
   const data = {
     txjson: txjson,
@@ -58,7 +64,7 @@ const registerOpulenceStaker = async (txjson: XummJsonTransaction, user_token: s
    * @returns {void}
    */
   const createStaker = async () => {
-    const staker = await OpulenceStaker.create({
+    await OpulenceStaker.create({
       walletAddress
     });
   }

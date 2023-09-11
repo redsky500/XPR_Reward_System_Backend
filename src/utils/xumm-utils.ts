@@ -13,6 +13,7 @@ const xumm = new XummSdk();
  *                    data can be a string or the response type
  */
 const requestXummTransaction = async (data: XummPostPayloadBodyJson | XummJsonTransaction, func?: () => Promise<void>) => {
+  
   const payload = await xumm.payload.createAndSubscribe(data, eventMessage => {
     if (Object.keys(eventMessage.data).indexOf('opened') > -1) {
       // Update the UI? The payload was opened.

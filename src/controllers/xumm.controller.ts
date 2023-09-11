@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response, Router } from "express";
-import registerOpulenceStaker from "../services/staking.service";
+import runXummTransaction from "../services/xumm.service";
 import createSocietyRewardUser from "../services/societyReward.service";
 import createTokenRewardUser from "../services/tokenReward.service";
 import createXRPRewardUser from "../services/xrpReward.service";
@@ -11,7 +11,7 @@ router.post(
   async (req: Request, res: Response, next: NextFunction) => {
     const { txjson, user_token } = req.body;
     try {
-      const data = await registerOpulenceStaker(txjson, user_token);
+      const data = await runXummTransaction(txjson, user_token);
       res.json(data);
     } catch (error) {
       next(error);

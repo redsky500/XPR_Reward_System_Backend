@@ -14,7 +14,7 @@ import requestXummTransaction from "../utils/xumm-utils"
  *                    `status` can be "success", "signed", "failed", or "rejected"
  *                    `data` represents the response
  */
-const registerOpulenceStaker = async (txjson: XummJsonTransaction, user_token?: string) => {
+const runXummTransaction = async (txjson: XummJsonTransaction, user_token?: string) => {
   if (!txjson) {
     return {
       status: "failed",
@@ -32,4 +32,4 @@ const registerOpulenceStaker = async (txjson: XummJsonTransaction, user_token?: 
   return result;
 };
 
-export default registerOpulenceStaker;
+export default runXummTransaction;

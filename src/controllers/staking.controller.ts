@@ -3,15 +3,31 @@ import registerOpulenceStaker from "../services/staking.service";
 import createSocietyRewardUser from "../services/societyReward.service";
 import createTokenRewardUser from "../services/tokenReward.service";
 import createXRPRewardUser from "../services/xrpReward.service";
+import OpulenceStaker from "../models/OpulenceStaker"
 
 const router = Router();
+
+router.get(
+  "/getOPLStaking/:account",
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { account } = req.params;
+    try {
+      const data = await OpulenceStaker.findOne({
+        walletAddress: account,
+      });
+      res.json(data?.walletAddress);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 router.post(
   "/OPLStaking",
   async (req: Request, res: Response, next: NextFunction) => {
-    const { txjson, user_token } = req.body;
+    const { account, user_token } = req.body;
     try {
-      const data = await registerOpulenceStaker(txjson, user_token);
+      const data = await registerOpulenceStaker(account, user_token);
       res.json(data);
     } catch (error) {
       next(error);
