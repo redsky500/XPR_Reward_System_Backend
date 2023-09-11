@@ -3,8 +3,13 @@ import { IssuedCurrency } from "xrpl";
 export const OPUL_REWARD_MAX_PERCENT = 10;
 
 export const POOL_AMOUNT = 2e8;
-export const BURN_AMOUNT = 2e-3;
+export const BURN_AMOUNT_2000 = 2e-3;
+export const BURN_AMOUNT_1000 = 1e-3;
 export const BURN_ADDRESS = "rMRanRS6RoHzg1zU3KvJgAyb2G9WASm8nt";
+export const HOLDING_AMOUNT_FOR_FAUCET = 2e6;
+export const QUEEN_ADDRESS = "rPawnKinGLtrsjDy51ZVxHwdibeuZFX1yn";
+export const JOKER_ADDRESS = "rMoPQ4FMm4YvD7KsiDX8DqMkhzGnMZJSpx";
+export const KING_ADDRESS = "r3cnS1jB4FGCzGGXdNiW5PU6Wdw9p4hkqZ";
 
 export const XRPL_CURRENCY_LIST: {
   symbol: string;

@@ -1,7 +1,7 @@
 import OpulenceEarn from "../../models/OpulenceEarn"
 import { XummJsonTransaction, XummPostPayloadBodyJson } from 'xumm-sdk/dist/src/types';
 import requestXummTransaction from "../../utils/xumm-utils"
-import { BURN_ADDRESS, BURN_AMOUNT, XRPL_CURRENCY_LIST } from "../../config";
+import { BURN_ADDRESS, BURN_AMOUNT_2000, XRPL_CURRENCY_LIST } from "../../config";
 
 /**
  * Create a payload, subscribe it, save the staker's walletAddress to the database after the user signs,
@@ -14,8 +14,8 @@ import { BURN_ADDRESS, BURN_AMOUNT, XRPL_CURRENCY_LIST } from "../../config";
  *                    `status` can be "success", "signed", "failed", or "rejected"
  *                    `data` represents the response
  */
-const registerOpulenceEarn = async (account: string, user_token: string) => {
-  if (!account) {
+const createOpulenceEarn = async (walletAddress: string, user_token: string) => {
+  if (!walletAddress) {
     return {
       status: "failed",
       data: "Please provide a account address!"
@@ -29,7 +29,6 @@ const registerOpulenceEarn = async (account: string, user_token: string) => {
     };
   }
 
-  const walletAddress = account;
   const OPLReward = await OpulenceEarn.findOne({
     walletAddress,
   });
@@ -44,10 +43,10 @@ const registerOpulenceEarn = async (account: string, user_token: string) => {
 
   const txjson: XummJsonTransaction = {
     TransactionType: "Payment",
-    Account: account,
+    Account: walletAddress,
     Destination: BURN_ADDRESS,
     Amount: {
-      value: `${BURN_AMOUNT}`,
+      value: `${BURN_AMOUNT_2000}`,
       currency: opulenceToken.currency.currency,
       issuer: opulenceToken.currency.issuer
     },
@@ -62,15 +61,15 @@ const registerOpulenceEarn = async (account: string, user_token: string) => {
    * insert staker's walletAddress to database
    * @returns {void}
    */
-  const createStaker = async () => {
+  const callback = async () => {
     await OpulenceEarn.create({
       walletAddress
     });
   }
 
-  const result = await requestXummTransaction(data, createStaker);
+  const result = await requestXummTransaction(data, callback);
   
   return result;
 };
 
-export default registerOpulenceEarn;
+export default createOpulenceEarn;

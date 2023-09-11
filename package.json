@@ -5,6 +5,7 @@
   "main": "app.ts",
   "scripts": {
     "start": "nodemon ./src/app.ts",
+    "build": "tsc",
     "lint:check": "npx eslint src/**/*.ts",
     "lint:fix": "npx eslint --fix src/**/*.ts"
   },

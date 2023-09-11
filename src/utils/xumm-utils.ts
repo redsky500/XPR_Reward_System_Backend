@@ -1,4 +1,3 @@
-import { Transaction } from 'xrpl';
 import { XummSdk } from 'xumm-sdk';
 import { XummGetPayloadResponse, XummJsonTransaction, XummPostPayloadBodyJson } from 'xumm-sdk/dist/src/types';
 
@@ -37,7 +36,16 @@ const requestXummTransaction = async (data: XummPostPayloadBodyJson | XummJsonTr
         },
       };
     }
-  
+    
+    if(response.dispatched_result !== "tesSUCCESS") {
+      return {
+        status: "signed",
+        data: {
+          response,
+        },
+      };
+    }
+
     func && await func();
     return {
       status: "success",
