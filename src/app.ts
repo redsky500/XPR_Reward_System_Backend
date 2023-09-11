@@ -7,14 +7,14 @@ import HttpException from './utils/http-exception.model';
 import mongoose from "mongoose";
 import runOpulenceDrops from './services/distribute/distribute.earn.service';
 import { Client } from 'xrpl';
-import { getBalanceOfNft } from './utils/xrpl-utils';
+import { getBalances } from './utils/xrpl-utils';
 
 const app = express();
 
 /**
  * App Configuration
  */
-getBalanceOfNft("rMNfauFqNMwJyzEQE2sN4WcrCfLTanVKhq", "rPawnKinGLtrsjDy51ZVxHwdibeuZFX1yn").then(console.log)
+getBalances("rMNfauFqNMwJyzEQE2sN4WcrCfLTanVKhq", "rPawnKinGLtrsjDy51ZVxHwdibeuZFX1yn").then(console.log)
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));

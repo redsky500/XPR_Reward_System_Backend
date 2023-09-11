@@ -1,7 +1,7 @@
 import OpulenceEarn from "../../models/OpulenceEarn"
 import { XummJsonTransaction, XummPostPayloadBodyJson } from 'xumm-sdk/dist/src/types';
 import requestXummTransaction from "../../utils/xumm-utils"
-import { BURN_ADDRESS, BURN_AMOUNT_2000, XRPL_CURRENCY_LIST } from "../../config";
+import { XRPL_CURRENCY_LIST } from "../../config";
 
 /**
  * Create a payload, subscribe it, save the staker's walletAddress to the database after the user signs,
@@ -44,9 +44,9 @@ const createOpulenceEarn = async (walletAddress: string, user_token: string) => 
   const txjson: XummJsonTransaction = {
     TransactionType: "Payment",
     Account: walletAddress,
-    Destination: BURN_ADDRESS,
+    Destination: process.env.BURN_ADDRESS,
     Amount: {
-      value: `${BURN_AMOUNT_2000}`,
+      value: `${process.env.BURN_AMOUNT_2000}`,
       currency: opulenceToken.currency.currency,
       issuer: opulenceToken.currency.issuer
     },

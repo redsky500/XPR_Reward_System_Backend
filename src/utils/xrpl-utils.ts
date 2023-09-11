@@ -1,6 +1,10 @@
 
 import { AccountLinesTrustline, Client, Transaction, AccountLinesRequest } from 'xrpl';
-import { XRPL_CURRENCY_LIST, HOLDING_AMOUNT_FOR_FAUCET } from '../config';
+import { XRPL_CURRENCY_LIST } from '../config';
+
+type Balances = {
+  oplBalance: number;
+}
 
 const PUBLIC_SERVER = process.env.XRPL_URL as string;
 const client = new Client(PUBLIC_SERVER);
@@ -29,7 +33,7 @@ export const getBalanceOfOpulence = async (account: string):Promise<number> => {
  * @param {string} account - Wallet address of holder
  * @returns {number} - Returns the balance
  */
-export const getBalanceOfNft = async (account: string, nft: string):Promise<number> => {
+export const getBalances = async (account: string, nft: string):Promise<Balances> => {
   await client.connect();
   // Create an AccountInfoRequest for the user's address
   const accountLinesRequest: AccountLinesRequest = {
@@ -40,8 +44,10 @@ export const getBalanceOfNft = async (account: string, nft: string):Promise<numb
   const accountInfo = await client.request(accountLinesRequest);
   console.log("accountInfo", accountInfo.result.lines);
 
-  const balance = parseInt(accountInfo.result.lines.find((line: AccountLinesTrustline) => line.currency === nft)?.balance??"0");
+  const oplBalance = parseInt(accountInfo.result.lines.find((line: AccountLinesTrustline) => line.currency === nft)?.balance??"0");
   await client.disconnect();
   
-  return balance;
+  return {
+    oplBalance
+  };
 }

@@ -1,9 +1,10 @@
 import { AccountLinesResponse, AccountLinesTrustline, Client, Transaction, Wallet } from 'xrpl';
-import { OPUL_REWARD_MAX_PERCENT, XRPL_CURRENCY_LIST, POOL_AMOUNT } from '../../config'
+import { OPUL_REWARD_MAX_PERCENT, XRPL_CURRENCY_LIST } from '../../config'
 import OpulenceEarn from "../../models/OpulenceEarn"
+require('dotenv').config()
 
 const opulenceToken = XRPL_CURRENCY_LIST[0];
-const dailyReward = Math.floor(POOL_AMOUNT / 365);
+const dailyReward = Math.floor((parseInt(process.env.POOL_AMOUNT)) / 365);
 
 /**
  * Fetch all stakers from the database, get their opulence balance, and return an array of the data.

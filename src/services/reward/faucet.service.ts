@@ -1,5 +1,5 @@
 import { XummJsonTransaction } from "xumm-sdk/dist/src/types";
-import { BURN_ADDRESS, BURN_AMOUNT_1000, XRPL_CURRENCY_LIST } from "../../config";
+import { XRPL_CURRENCY_LIST } from "../../config";
 import OpulenceFaucet from "../../models/OpulenceFaucet"
 import requestXummTransaction from "../../utils/xumm-utils";
 
@@ -33,9 +33,9 @@ const createOpulenceFaucet = async (walletAddress: string, user_token: string) =
   const txjson: XummJsonTransaction = {
     TransactionType: "Payment",
     Account: walletAddress,
-    Destination: BURN_ADDRESS,
+    Destination: process.env.BURN_ADDRESS,
     Amount: {
-      value: `${BURN_AMOUNT_1000}`,
+      value: `${process.env.BURN_AMOUNT_1000}`,
       currency: opulenceToken.currency.currency,
       issuer: opulenceToken.currency.issuer
     },
