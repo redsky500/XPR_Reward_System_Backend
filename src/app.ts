@@ -14,8 +14,7 @@ const app = express();
 /**
  * App Configuration
  */
-// const bal = await getBalanceOfNft("rMNfauFqNMwJyzEQE2sN4WcrCfLTanVKhq", "rPawnKinGLtrsjDy51ZVxHwdibeuZFX1yn");
-// console.log(bal);
+getBalanceOfNft("rMNfauFqNMwJyzEQE2sN4WcrCfLTanVKhq", "rPawnKinGLtrsjDy51ZVxHwdibeuZFX1yn").then(console.log)
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
