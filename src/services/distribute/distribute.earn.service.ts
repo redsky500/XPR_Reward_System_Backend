@@ -69,7 +69,7 @@ const runDrops = async () => {
   
   const poolBalance = await getBalanceOfOpulence(client, wallet.classicAddress);
   if(poolBalance < dailyReward) {
-    console.log("Not enough pool balance for rewarding!!!");
+    console.log("Not enough pool balance for daily rewarding!!!");
     return;
   }
 

@@ -13,7 +13,7 @@ const checkConnect = async (client: Client) => {
   setTimeout(async () => {
     await client.connect();
     return await checkConnect(client);
-  }, 3000);
+  }, 60000);
 }
 
 export const getEarnWallet = () => (
@@ -34,7 +34,7 @@ export const getArtWallet = () => (
 
 export const getClient = () => {
   const PUBLIC_SERVER = process.env.XRPL_URL as string;
-  const client = new Client(PUBLIC_SERVER, {timeout: 30000});
+  const client = new Client(PUBLIC_SERVER, { connectionTimeout: 30000 });
   return client;
 }
 
