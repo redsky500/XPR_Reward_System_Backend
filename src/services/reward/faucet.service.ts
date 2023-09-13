@@ -1,32 +1,17 @@
 import { XummJsonTransaction } from "xumm-sdk/dist/src/types";
 import { XRPL_CURRENCY_LIST } from "../../config";
 import OpulenceFaucet from "../../models/OpulenceFaucet"
-import { requestXummTransaction, requestVerifyUserToken, validateUser } from "../../utils/xumm-utils";
-import { getBalances, getClient, getPrepared, getFaucetWallet, isRegisterableFaucet, submitAndWait } from "../../utils/xrpl-utils";
+import { requestXummTransaction, requestVerifyUserToken, validateAccount } from "../../utils/xumm-utils";
+import { getBalances, getClient, getFaucetWallet, isRegisterableFaucet, requestXrpTransaction } from "../../utils/xrpl-utils";
 import { Transaction, TransactionMetadata } from "xrpl";
+import { validateUser } from "../validators/userValidator";
 
 export const createOpulenceFaucet = async (walletAddress: string, user_token: string) => {
-  if (!walletAddress) {
-    return {
-      status: "failed",
-      data: "Please provide a account address!"
-    };
+  const { status, data } = await validateUser(walletAddress, user_token);
+  if(status === "failed") {
+    return { status, data };
   }
 
-  if (!user_token) {
-    return {
-      status: "failed",
-      data: "Please connect wallet first!"
-    };
-  }
-
-  if (!(await requestVerifyUserToken(user_token))) {
-    return {
-      status: "failed",
-      data: "Invalid user token!"
-    };
-  }
-  
   const OPLReward = await OpulenceFaucet.findOne({
     walletAddress,
   });
@@ -62,7 +47,7 @@ export const createOpulenceFaucet = async (walletAddress: string, user_token: st
     },
   };
 
-  const data = {
+  const payload = {
     txjson: txjson,
     user_token,
   };
@@ -77,31 +62,15 @@ export const createOpulenceFaucet = async (walletAddress: string, user_token: st
     });
   }
 
-  const result = await requestXummTransaction(data, callback);
+  const result = await requestXummTransaction(payload, callback);
   
   return result;
 };
 
 export const claimFaucet = async (walletAddress: string, user_token: string) => {
-  if (!walletAddress) {
-    return {
-      status: "failed",
-      data: "Please provide a account address!"
-    };
-  }
-
-  if (!user_token) {
-    return {
-      status: "failed",
-      data: "Please connect wallet first!"
-    };
-  }
-
-  if (!(await requestVerifyUserToken(user_token))) {
-    return {
-      status: "failed",
-      data: "Invalid user token!"
-    };
+  const { status, data } = await validateUser(walletAddress, user_token);
+  if(status === "failed") {
+    return { status, data };
   }
   
   const OPLReward = await OpulenceFaucet.findOne({
@@ -122,10 +91,10 @@ export const claimFaucet = async (walletAddress: string, user_token: string) => 
     };
   }
 
-  if (!(await validateUser(walletAddress, user_token))) {
+  if (!(await validateAccount(walletAddress, user_token))) {
     return {
       status: "failed",
-      data: "Invalid User!"
+      data: "Not the account's owner!"
     };
   }
   
@@ -136,13 +105,11 @@ export const claimFaucet = async (walletAddress: string, user_token: string) => 
   const txjson = {
     TransactionType: "Payment",
     Account: wallet.classicAddress,
-    Amount: `${reward}`,
+    Amount: `${reward / 100 * 1e6}`,
     Destination: OPLReward.walletAddress,
   };
-  const prepared: Transaction = await getPrepared(client, txjson);
+  const { result } = await requestXrpTransaction(client, wallet, txjson);
 
-  const signed = wallet.sign(prepared as Transaction);
-  const { result } = await submitAndWait(client, signed.tx_blob);
   await client.disconnect();
 
   const txMeta = result.meta as TransactionMetadata;
@@ -159,6 +126,11 @@ export const claimFaucet = async (walletAddress: string, user_token: string) => 
 
   return {
     status: "success",
-    data: `Congratulation! You claimed ${reward} xrp successfully.`,
+    data: {
+      response: {
+        txid: result.hash,
+        dispatched_result: txMeta?.TransactionResult,
+      }
+    },
   };
 };

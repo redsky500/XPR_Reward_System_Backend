@@ -31,7 +31,7 @@ async function calcRewardAndSaveData() {
     if (stakers.length === 0) {
       break; // No more documents left, exit loop
     }
-      
+
     const rewardPromises = stakers.filter(async staker => {
       const account = staker.walletAddress;
       const balance = await getBalanceOfOpulence(client, account);
@@ -57,7 +57,7 @@ const runDrops = async () => {
   const startTime = new Date();
   await calcRewardAndSaveData();
   const costTime = new Date().getTime() - startTime.getTime();
-  console.log("costTime", costTime);
+  console.log("costTimeForFaucet", costTime);
   
   console.log("Saved successfully for faucet.");
 }

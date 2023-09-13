@@ -82,7 +82,7 @@ const runDrops = () => {
       await runEarnDrops();
       await runFaucetDrops();
     } catch (error) {
-      console.log("error occurred while running faucet reward...:", error);
+      console.log("error occurred while running reward...:", error);
     }
   });
 }

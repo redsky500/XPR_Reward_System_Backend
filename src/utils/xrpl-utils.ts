@@ -1,5 +1,5 @@
 
-import { Wallet, AccountLinesTrustline, Client, Transaction, AccountLinesRequest, TxResponse } from 'xrpl';
+import { Wallet, AccountLinesTrustline, Client, Transaction, AccountLinesRequest, TxResponse, AccountNFTsResponse, AccountNFTsRequest, AccountNFToken } from 'xrpl';
 import { XRPL_CURRENCY_LIST } from '../config';
 
 type Balances = {
@@ -38,7 +38,7 @@ export const getClient = () => {
   return client;
 }
 
-export const getPrepared = async (client: Client, txjson: any): Promise<Transaction> => {
+const getPrepared = async (client: Client, txjson: any): Promise<Transaction> => {
   await checkConnect(client);
   const prepared = await client.autofill(txjson);
   prepared.LastLedgerSequence = (prepared.LastLedgerSequence??0)
@@ -46,11 +46,39 @@ export const getPrepared = async (client: Client, txjson: any): Promise<Transact
   return prepared;
 }
 
-export const submitAndWait = async (client: Client, tx_blob: string): Promise<TxResponse<Transaction>> => {
+const submitAndWait = async (client: Client, tx_blob: string): Promise<TxResponse<Transaction>> => {
   await checkConnect(client);
   const result = client.submitAndWait(tx_blob);
   return result;
 }
+
+export const requestXrpTransaction = async (client: Client, wallet: Wallet, txjson: any) => {
+  const prepared: Transaction = await getPrepared(client, txjson);
+
+  const signed = wallet.sign(prepared as Transaction);
+  return submitAndWait(client, signed.tx_blob);
+}
+
+export const fetchAccountNFTsXrpl = async (
+  client: Client,
+  account: string,
+  marker?: string,
+): Promise<AccountNFTsResponse["result"] | undefined> => {
+    try {
+      const payload: AccountNFTsRequest = {
+        command: "account_nfts",
+        account: account,
+        ledger_index: "validated",
+        limit: 30,
+        marker: marker || undefined,
+      };
+      const res = await client.request(payload);
+      return res.result;
+    } catch (error) {
+      return;
+    }
+  };
+
 /**
  * Get opulence token balance of account
  * @param {string} account - Wallet address of holder
@@ -92,19 +120,25 @@ export const getBalanceOfXrp = async (client: Client, account: string):Promise<n
  */
 export const calcRewardFromNFTs = async (client: Client, account: string):Promise<number> => {
   await checkConnect(client);
-  const poolInfo = await client.request({
-    command: 'account_nfts',
-    account,
-  });
+  let accountNFTs: AccountNFToken[] = [];
+  while(true) {
+    const info = await fetchAccountNFTsXrpl(
+      client,
+      account,
+      "faucet"
+    );
+    if(!(info?.account_nfts?.length > 0)) break;
+    accountNFTs.push(...(info.account_nfts));
+  }
 
   const queenReward = parseFloat(process.env.QUEEN_REWARD);
   const jokerReward = parseFloat(process.env.JOKER_REWARD);
   const kingReward = parseFloat(process.env.KING_REWARD);
 
-  const reward = poolInfo.result.account_nfts.reduce((sum, b) => {
-    if(b.Issuer === process.env.QUEEN_ADDRESS) sum += queenReward
-    else if(b.Issuer === process.env.JOKER_ADDRESS) sum += jokerReward
-    else if(b.Issuer === process.env.KING_ADDRESS) sum += kingReward
+  const reward = accountNFTs.reduce((sum, b) => {
+    if(b.Issuer === process.env.QUEEN_ADDRESS && b.NFTokenTaxon === parseInt(process.env.QUEEN_TAXON)) sum += queenReward
+    else if(b.Issuer === process.env.JOKER_ADDRESS && b.NFTokenTaxon === parseInt(process.env.JOKER_TAXON)) sum += jokerReward
+    else if(b.Issuer === process.env.KING_ADDRESS && b.NFTokenTaxon === parseInt(process.env.KING_TAXON)) sum += kingReward
     // else if(b.Issuer === "rMNfauFqNMwJyzEQE2sN4WcrCfLTanVKhq") sum += queenReward
     return sum;
   }, 0);

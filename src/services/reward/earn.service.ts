@@ -2,6 +2,7 @@ import OpulenceEarn from "../../models/OpulenceEarn"
 import { XummJsonTransaction, XummPostPayloadBodyJson } from 'xumm-sdk/dist/src/types';
 import { requestXummTransaction } from "../../utils/xumm-utils"
 import { XRPL_CURRENCY_LIST } from "../../config";
+import { validateUser } from "../validators/userValidator";
 
 /**
  * Create a payload, subscribe it, save the staker's walletAddress to the database after the user signs,
@@ -15,20 +16,11 @@ import { XRPL_CURRENCY_LIST } from "../../config";
  *                    `data` represents the response
  */
 export const createOpulenceEarn = async (walletAddress: string, user_token: string) => {
-  if (!walletAddress) {
-    return {
-      status: "failed",
-      data: "Please provide a account address!"
-    };
+  const { status, data } = await validateUser(walletAddress, user_token);
+  if(status === "failed") {
+    return { status, data };
   }
-
-  if (!user_token) {
-    return {
-      status: "failed",
-      data: "Please connect wallet first!"
-    };
-  }
-
+  
   const OPLReward = await OpulenceEarn.findOne({
     walletAddress,
   });
@@ -52,7 +44,7 @@ export const createOpulenceEarn = async (walletAddress: string, user_token: stri
     },
   };
 
-  const data = {
+  const payload = {
     txjson: txjson,
     user_token,
   };
@@ -67,7 +59,7 @@ export const createOpulenceEarn = async (walletAddress: string, user_token: stri
     });
   }
 
-  const result = await requestXummTransaction(data, callback);
+  const result = await requestXummTransaction(payload, callback);
   
   return result;
 };

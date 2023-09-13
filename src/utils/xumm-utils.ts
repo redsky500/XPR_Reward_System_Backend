@@ -87,7 +87,7 @@ export const requestVerifyUserToken = async (userToken: string): Promise<boolean
   return tokenResult.active;
 }
 
-export const validateUser = async (account: string, user_token: string): Promise<boolean> => {
+export const validateAccount = async (account: string, user_token: string): Promise<boolean> => {
   const signResult = await requestSignTransaction(user_token);
 
   return account === signResult.response.signer;
