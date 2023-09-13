@@ -11,7 +11,7 @@ const xumm = new XummSdk();
  *                    status can be "success", "signed", "failed", or "rejected"
  *                    data can be a string or the response type
  */
-export const requestXummTransaction = async (data: XummPostPayloadBodyJson | XummJsonTransaction, func?: () => Promise<void>) => {
+export const requestXummTransaction = async (data: XummPostPayloadBodyJson | XummJsonTransaction, func?: () => Promise<any>) => {
   const {meta: {resolved, signed, cancelled}, response}  = await requestTransaction(data);
   
   if(resolved) {
@@ -33,7 +33,15 @@ export const requestXummTransaction = async (data: XummPostPayloadBodyJson | Xum
       };
     }
 
-    func && await func();
+    const saveResult = func && await func();
+    
+    if(!(saveResult?.walletAddress)) {
+      return {
+        status: "failed",
+        data: "Could not save in db.",
+      };
+    }
+
     return {
       status: "success",
       data: {

@@ -58,26 +58,24 @@ mongoose.connect(
 );
 
 const runDrops = () => {
-  function callFunctionAtSpecificTime(targetTime: Date, callback: ()=>void) {
+  function callFunctionAtSpecificTime(callback: ()=>void) {
     const currentTime = new Date();
+    const targetTime = new Date();
+    targetTime.setHours(12, 0, 0, 0); // Set the target time as 12:00:00 (noon)
     const timeDifference = targetTime.getTime() - currentTime.getTime();
   
     // If the target time has already passed for this day, add 24 hours to the time difference
-    const timeToNextCall = timeDifference < 0 ? timeDifference + 24 * 60 * 60 * 1000 : timeDifference;
+    const timeToNextCall = timeDifference <= 0 ? timeDifference + 24 * 60 * 60 * 1000 : timeDifference;
     // const timeToNextCall = 10e3; // set 10s for testing purpose to call drop per 10s
     // const timeToNextCall = 60*10e3; // set 10min for testing purpose to call drop per 10min
 
     setTimeout(() => {
       callback(); // Call the desired function
-      callFunctionAtSpecificTime(targetTime, callback); // Schedule the next call
+      callFunctionAtSpecificTime(callback); // Schedule the next call
     }, timeToNextCall);
   }
   
-  // Example usage:
-  const targetTime = new Date();
-  targetTime.setHours(12, 0, 0, 0); // Set the target time as 12:00:00 (noon)
-  
-  callFunctionAtSpecificTime(targetTime, async () => {
+  callFunctionAtSpecificTime(async () => {
     try {
       await runEarnDrops();
       await runFaucetDrops();

@@ -54,7 +54,7 @@ export const createOpulenceEarn = async (walletAddress: string, user_token: stri
    * @returns {void}
    */
   const callback = async () => {
-    await OpulenceEarn.create({
+    return await OpulenceEarn.create({
       walletAddress
     });
   }
