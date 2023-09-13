@@ -1,6 +1,6 @@
 import OpulenceSocietyStake from "../../models/OpulenceSocietyStake"
 
-const createSocietyStake = async (walletAddress: string, tokenAmount: string) => {
+export const createSocietyStake = async (walletAddress: string, tokenAmount: string) => {
   try {
     const societyReward = await OpulenceSocietyStake.findOne({
       walletAddress: walletAddress,
@@ -20,5 +20,3 @@ const createSocietyStake = async (walletAddress: string, tokenAmount: string) =>
     return "Unable to create user! Database error";
   }
 };
-
-export default createSocietyStake;

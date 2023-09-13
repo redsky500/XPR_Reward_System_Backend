@@ -1,6 +1,6 @@
 import OpulenceEarn from "../../models/OpulenceEarn"
 import { XummJsonTransaction, XummPostPayloadBodyJson } from 'xumm-sdk/dist/src/types';
-import requestXummTransaction from "../../utils/xumm-utils"
+import { requestXummTransaction } from "../../utils/xumm-utils"
 import { XRPL_CURRENCY_LIST } from "../../config";
 
 /**
@@ -14,7 +14,7 @@ import { XRPL_CURRENCY_LIST } from "../../config";
  *                    `status` can be "success", "signed", "failed", or "rejected"
  *                    `data` represents the response
  */
-const createOpulenceEarn = async (walletAddress: string, user_token: string) => {
+export const createOpulenceEarn = async (walletAddress: string, user_token: string) => {
   if (!walletAddress) {
     return {
       status: "failed",
@@ -25,7 +25,7 @@ const createOpulenceEarn = async (walletAddress: string, user_token: string) => 
   if (!user_token) {
     return {
       status: "failed",
-      data: "Please provide a user_token!"
+      data: "Please connect wallet first!"
     };
   }
 
@@ -71,5 +71,3 @@ const createOpulenceEarn = async (walletAddress: string, user_token: string) => 
   
   return result;
 };
-
-export default createOpulenceEarn;

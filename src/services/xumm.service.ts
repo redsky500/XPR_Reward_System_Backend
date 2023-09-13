@@ -1,6 +1,6 @@
 import OpulenceEarn from "../models/OpulenceEarn"
 import { XummJsonTransaction, XummPostPayloadBodyJson } from 'xumm-sdk/dist/src/types';
-import requestXummTransaction from "../utils/xumm-utils"
+import { requestXummTransaction } from "../utils/xumm-utils"
 
 /**
  * Create a payload and subscribe it for a general XUMM transaction without updating the database,

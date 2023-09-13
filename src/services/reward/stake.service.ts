@@ -1,6 +1,6 @@
 import OpulenceStake from "../../models/OpulenceStake"
 
-const createOpulenceStake = async (walletAddress: string, tokenAmount: string) => {
+export const createOpulenceStake = async (walletAddress: string, tokenAmount: string) => {
   try {
     const tokenReward = await OpulenceStake.findOne({
       walletAddress: walletAddress,
@@ -19,5 +19,3 @@ const createOpulenceStake = async (walletAddress: string, tokenAmount: string) =
     return "Unable to create user! Database error";
   }
 };
-
-export default createOpulenceStake;

@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response, Router } from "express";
-import createOpulenceEarn from "../services/reward/earn.service";
-import createSocietyStake from "../services/reward/societyStake.service";
-import createOpulenceStake from "../services/reward/stake.service";
-import createOpulenceFaucet from "../services/reward/faucet.service";
+import { createOpulenceEarn } from "../services/reward/earn.service";
+import { createOpulenceFaucet, claimFaucet } from "../services/reward/faucet.service";
+import { createOpulenceStake } from "../services/reward/stake.service";
+import { createSocietyStake } from "../services/reward/societyStake.service";
 import OpulenceEarn from "../models/OpulenceEarn"
 import OpulenceFaucet from "../models/OpulenceFaucet"
 
@@ -58,6 +58,19 @@ router.post(
     try {
       const user = await createOpulenceFaucet(account, user_token);
       res.json(user);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+router.post(
+  "/claimOPLFaucet",
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { account, user_token } = req.body;
+    try {
+      const result = await claimFaucet(account, user_token);
+      res.json(result);
     } catch (error) {
       next(error);
     }

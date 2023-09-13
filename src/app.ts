@@ -5,16 +5,20 @@ import bodyParser from 'body-parser';
 import routes from './routes/routes';
 import HttpException from './utils/http-exception.model';
 import mongoose from "mongoose";
-import runOpulenceDrops from './services/distribute/distribute.earn.service';
-import { Client } from 'xrpl';
-import { getBalances } from './utils/xrpl-utils';
+import runEarnDrops from './services/distribute/distribute.earn.service';
+import runFaucetDrops from './services/distribute/distribute.faucet.service';
+import { getBalances, calcRewardFromNFTs, getClient } from './utils/xrpl-utils';
+import { Wallet } from 'xrpl';
 
 const app = express();
 
 /**
  * App Configuration
  */
-getBalances("rMNfauFqNMwJyzEQE2sN4WcrCfLTanVKhq", "rPawnKinGLtrsjDy51ZVxHwdibeuZFX1yn").then(console.log)
+// const client = getClient();
+// client.connect().then(() => {
+// });
+
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -53,16 +57,13 @@ mongoose.connect(
 );
 
 const runDrops = () => {
-  const PUBLIC_SERVER = process.env.XRPL_URL as string;
-  const client = new Client(PUBLIC_SERVER);
-
   function callFunctionAtSpecificTime(targetTime: Date, callback: ()=>void) {
     const currentTime = new Date();
     const timeDifference = targetTime.getTime() - currentTime.getTime();
   
     // If the target time has already passed for this day, add 24 hours to the time difference
-    const timeToNextCall = timeDifference < 0 ? timeDifference + 24 * 60 * 60 * 1000 : timeDifference;
-    // const timeToNextCall = 10e3; // set 10s for testing purpose to call drop per 10s
+    // const timeToNextCall = timeDifference < 0 ? timeDifference + 24 * 60 * 60 * 1000 : timeDifference;
+    const timeToNextCall = 10e3; // set 10s for testing purpose to call drop per 10s
 
     setTimeout(() => {
       callback(); // Call the desired function
@@ -76,10 +77,10 @@ const runDrops = () => {
   
   callFunctionAtSpecificTime(targetTime, async () => {
     try {
-      if(!client.isConnected()) await client.connect();
-      await runOpulenceDrops(client);
+      await runEarnDrops();
+      await runFaucetDrops();
     } catch (error) {
-      console.log("error occurred while running drops...:", error);
+      console.log("error occurred while running faucet reward...:", error);
     }
   });
 }
