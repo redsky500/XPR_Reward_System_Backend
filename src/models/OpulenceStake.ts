@@ -3,12 +3,8 @@ import mongoose from "mongoose";
 const OpulenceStakeSchema = new mongoose.Schema({
   walletAddress: {
     type: String,
+    unique: true,
     required: true,
-  },
-  reward: {
-    type: Number,
-    required: true,
-    default: 0,
   },
 }, { timestamps: true });
 

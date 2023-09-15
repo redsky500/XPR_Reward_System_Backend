@@ -1,11 +1,12 @@
 import { NextFunction, Request, Response, Router } from "express";
 import { createOpulenceEarn } from "../services/reward/earn.service";
 import { createOpulenceFaucet, claimFaucet } from "../services/reward/faucet.service";
-import { claimStake, createOpulenceStake } from "../services/reward/stake.service";
-import { createSocietyStake } from "../services/reward/societyStake.service";
+import { createOpulenceStake } from "../services/reward/stake.service";
+import { createOpulenceArt } from "../services/reward/art.service";
 import OpulenceEarn from "../models/OpulenceEarn"
 import OpulenceFaucet from "../models/OpulenceFaucet"
 import OpulenceStake from "../models/OpulenceStake";
+import OpulenceArt from "../models/OpulenceArt";
 
 const router = Router();
 
@@ -106,13 +107,15 @@ router.post(
   }
 );
 
-router.post(
-  "/claimOPLStake",
+router.get(
+  "/getOPLArt/:account",
   async (req: Request, res: Response, next: NextFunction) => {
-    const { account, user_token } = req.body;
+    const { account } = req.params;
     try {
-      const result = await claimStake(account, user_token);
-      res.json(result);
+      const data = await OpulenceArt.findOne({
+        walletAddress: account,
+      });
+      res.json(data?.walletAddress);
     } catch (error) {
       next(error);
     }
@@ -120,14 +123,11 @@ router.post(
 );
 
 router.post(
-  "/societyStaking",
+  "/OPLArt",
   async (req: Request, res: Response, next: NextFunction) => {
-    const { walletAddress, tokenAmount } = req.body;
-    if (!walletAddress) {
-      throw new Error("Please provide walletAddress!");
-    }
+    const { account, user_token } = req.body;
     try {
-      const user = await createSocietyStake(walletAddress, tokenAmount);
+      const user = await createOpulenceArt(account, user_token);
       res.json(user);
     } catch (error) {
       next(error);

@@ -36,12 +36,12 @@ async function calcRewardAndSaveData() {
   await client.connect();
   const stakers = await getAccountRegisteredOpulFaucet();
   const accounts = stakers.map(staker => staker.walletAddress);
-  const opulbalances = await getMultipleBalances(accounts, opulenceToken.currency);
+  const opulBalances = await getMultipleBalances(accounts, opulenceToken.currency);
   const rewards = await getRewardsForFaucet();
 
   if(Object.keys(rewards).length > stakers.length) {
     const savePromises = stakers.map(async staker => {
-      const balance = opulbalances[staker.walletAddress][0]?.value;
+      const balance = opulBalances[staker.walletAddress][0]?.value;
       if(parseFloat(balance || "0") < minHoldingAmountForFaucet) return;
       if(rewards[staker.walletAddress] > 0) {
         await staker.updateOne({
@@ -52,7 +52,7 @@ async function calcRewardAndSaveData() {
     await Promise.all(savePromises);
   } else {
     const savePromises = Object.keys(rewards).map(async account => {
-      const balance = opulbalances[account][0]?.value;
+      const balance = opulBalances[account][0]?.value;
       if(parseFloat(balance || "0") < minHoldingAmountForFaucet) return;
       if(rewards[account] > 0) {
         const staker = stakers.find(staker => staker.walletAddress === account)

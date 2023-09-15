@@ -92,16 +92,16 @@ const runDrops = async () => {
   const poolBalance = await getBalanceOfOpulence(client, wallet.classicAddress);
 
   if (poolBalance < dailyReward) {
-    console.log("Not enough pool balance for daily rewarding!!!");
+    console.log("Not enough pool balance for earn daily rewarding!!!");
     return;
   }
 
   if (totalBalance === 0) {
-    console.log("No registered opulence staking!!!");
+    console.log("No opulence holding by stakers!!!");
     return;
   }
 
-  for (const data of balanceData) {
+  const dropPromises = balanceData.map(async (data, index) => {
     try {
       const currentBalance = data.balance;
       if (currentBalance > 0) {
@@ -126,13 +126,14 @@ const runDrops = async () => {
           },
           Destination: data.account,
         };
-        const tx = await requestXrpTransaction(client, wallet, txjson);
-        console.log("OPULENCE EARNING AIRDROP IS DONE : ", tx.result.hash);
+        const tx = await requestXrpTransaction(client, wallet, txjson, index);
       }
     } catch (error) {
       console.log(error);
     }
-  }
+  });
+
+  await Promise.all(dropPromises);
 
   await client.disconnect();
 

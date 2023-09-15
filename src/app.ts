@@ -8,6 +8,7 @@ import mongoose from "mongoose";
 import runEarnDrops from "./services/distribute/distribute.earn.service";
 import runFaucetDrops from "./services/distribute/distribute.faucet.service";
 import runStakeDrops from "./services/distribute/distribute.stake.service";
+import runArtDrops from "./services/distribute/distribute.art.service";
 import { getBalances, calcRewardFromNFTs, getClient } from "./utils/xrpl-utils";
 import { Wallet } from "xrpl";
 
@@ -65,9 +66,10 @@ mongoose.connect(process.env.DATABASE_URL as string);
 
 const runAllDrops = () => {
   try {
-    // runEarnDrops();
+    runEarnDrops();
     runFaucetDrops();
-    runStakeDrops();
+    // runStakeDrops();
+    // runArtDrops();
   } catch (error) {
     console.log("error occurred while running reward...:", error);
   }

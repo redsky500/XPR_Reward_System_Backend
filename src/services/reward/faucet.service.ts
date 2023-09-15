@@ -56,11 +56,11 @@ export const createOpulenceFaucet = async (walletAddress: string, user_token: st
    * insert staker's walletAddress to database
    * @returns {void}
    */
-  const callback = async () => {
+  const callback = async () => (
     await OpulenceFaucet.create({
       walletAddress
-    });
-  }
+    })
+  );
 
   const result = await requestXummTransaction(payload, callback);
   
@@ -97,9 +97,17 @@ export const claimFaucet = async (walletAddress: string, user_token: string) => 
       data: "Not the account's owner!"
     };
   }
-  
+
   const client = getClient();
   await client.connect();
+  
+  const registerable = await isRegisterable(client, walletAddress);
+  if (!registerable) {
+    return {
+      status: "failed",
+      data: "Not enough balance! Please check the conditions."
+    };
+  }
 
   const wallet = getFaucetWallet();
   const txjson = {

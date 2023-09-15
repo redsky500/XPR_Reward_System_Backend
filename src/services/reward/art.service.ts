@@ -1,18 +1,18 @@
 import { XummJsonTransaction } from "xumm-sdk/dist/src/types";
 import { XRPL_CURRENCY_LIST } from "../../config";
-import OpulenceStake from "../../models/OpulenceStake"
+import OpulenceArt from "../../models/OpulenceArt"
 import { requestXummTransaction, requestVerifyUserToken, validateAccount } from "../../utils/xumm-utils";
-import { getBalances, getClient, getStakeWallet, isRegisterable, requestXrpTransaction } from "../../utils/xrpl-utils";
+import { getBalances, getClient, getArtWallet, isRegisterable, requestXrpTransaction } from "../../utils/xrpl-utils";
 import { Transaction, TransactionMetadata } from "xrpl";
 import { validateUser } from "../validators/userValidator";
 
-export const createOpulenceStake = async (walletAddress: string, user_token: string) => {
+export const createOpulenceArt = async (walletAddress: string, user_token: string) => {
   const { status, data } = await validateUser(walletAddress, user_token);
   if(status === "failed") {
     return { status, data };
   }
 
-  const OPLReward = await OpulenceStake.findOne({
+  const OPLReward = await OpulenceArt.findOne({
     walletAddress,
   });
   if (OPLReward) {
@@ -27,12 +27,12 @@ export const createOpulenceStake = async (walletAddress: string, user_token: str
 
   const registerable = await isRegisterable(client, walletAddress);
   await client.disconnect();
-  if (!registerable) {
-    return {
-      status: "failed",
-      data: "Not enough balance! Please check the conditions."
-    };
-  }
+  // if (!registerable) {
+  //   return {
+  //     status: "failed",
+  //     data: "Not enough balance! Please check the conditions."
+  //   };
+  // }
 
   const opulenceToken = XRPL_CURRENCY_LIST[0];
 
@@ -57,7 +57,7 @@ export const createOpulenceStake = async (walletAddress: string, user_token: str
    * @returns {void}
    */
   const callback = async () => (
-    await OpulenceStake.create({
+    await OpulenceArt.create({
       walletAddress
     })
   );

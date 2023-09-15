@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 const OpulenceEarnSchema = new mongoose.Schema({
   walletAddress: {
     type: String,
+    unique: true,
     required: true,
   },
 }, { timestamps: true });

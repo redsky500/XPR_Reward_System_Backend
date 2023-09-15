@@ -67,10 +67,15 @@ const submitAndWait = async (
 export const requestXrpTransaction = async (
   client: Client,
   wallet: Wallet,
-  txjson: any
+  txjson: any,
+  index?: number,
 ) => {
   const prepared: Transaction = await getPrepared(client, txjson);
   const autofilled = await client.autofill(prepared);
+  if(index) {
+    autofilled.LastLedgerSequence += index;
+    autofilled.Sequence += index;
+  }
   const signed = wallet.sign(autofilled);
   return submitAndWait(client, signed.tx_blob);
 };

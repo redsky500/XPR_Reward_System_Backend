@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 const OpulenceFaucetSchema = new mongoose.Schema({
   walletAddress: {
     type: String,
+    unique: true,
     required: true,
   },
   reward: {

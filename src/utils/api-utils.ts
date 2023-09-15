@@ -59,3 +59,23 @@ export const getCountsForStake = async () => {
 
   return counts;
 }
+
+export const getCountsForArt = async () => {
+  const { QUEEN_ADDRESS, JOKER_ADDRESS, KING_ADDRESS, QUEEN_TAXON, JOKER_TAXON, KING_TAXON } = process.env
+  const queen_holders = await getNFTOwnersFromIssuerAndTaxon(QUEEN_ADDRESS, QUEEN_TAXON);
+  const joker_holders = await getNFTOwnersFromIssuerAndTaxon(JOKER_ADDRESS, JOKER_TAXON);
+  const king_holders = await getNFTOwnersFromIssuerAndTaxon(KING_ADDRESS, KING_TAXON);
+
+  const counts: NFTHoldByAccount = {};
+  queen_holders.map((holder: any) => {
+    counts[holder.owner] = holder.count;
+  });
+  joker_holders.map((holder: any) => {
+    counts[holder.owner] = (counts[holder.owner] || 0) + holder.count;
+  });
+  king_holders.map((holder: any) => {
+    counts[holder.owner] = (counts[holder.owner] || 0) + holder.count;
+  });
+
+  return counts;
+}
