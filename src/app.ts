@@ -83,8 +83,10 @@ const runDrops = () => {
   //   (nextTime - currentTime + dailyMilliSecond) % dailyMilliSecond;
   const timerToFirstAirdrop = 1000;
   setTimeout(() => {
+    console.log("FIRST OPULENCE EARN BEGIN");
     runAllDrops();
     setInterval(async () => {
+      console.log("DAILY OPULENCE EARN BEGIN");
       runAllDrops();
     }, dailyMilliSecond);
   }, timerToFirstAirdrop);
