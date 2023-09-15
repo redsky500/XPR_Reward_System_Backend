@@ -2,7 +2,7 @@ import { XummJsonTransaction } from "xumm-sdk/dist/src/types";
 import { XRPL_CURRENCY_LIST } from "../../config";
 import OpulenceFaucet from "../../models/OpulenceFaucet"
 import { requestXummTransaction, requestVerifyUserToken, validateAccount } from "../../utils/xumm-utils";
-import { getBalances, getClient, getFaucetWallet, isRegisterableFaucet, requestXrpTransaction } from "../../utils/xrpl-utils";
+import { getBalances, getClient, getFaucetWallet, isRegisterable, requestXrpTransaction } from "../../utils/xrpl-utils";
 import { Transaction, TransactionMetadata } from "xrpl";
 import { validateUser } from "../validators/userValidator";
 
@@ -25,7 +25,7 @@ export const createOpulenceFaucet = async (walletAddress: string, user_token: st
   const client = getClient();
   await client.connect();
 
-  const registerable = await isRegisterableFaucet(client, walletAddress);
+  const registerable = await isRegisterable(client, walletAddress);
   await client.disconnect();
   if (!registerable) {
     return {
@@ -105,7 +105,7 @@ export const claimFaucet = async (walletAddress: string, user_token: string) => 
   const txjson = {
     TransactionType: "Payment",
     Account: wallet.classicAddress,
-    Amount: `${reward / 100 * 1e6}`,
+    Amount: `${reward}`,
     Destination: OPLReward.walletAddress,
   };
   const { result } = await requestXrpTransaction(client, wallet, txjson);

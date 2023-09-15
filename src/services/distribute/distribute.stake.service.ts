@@ -1,18 +1,18 @@
 import { AccountLinesResponse, AccountLinesTrustline, Client, Transaction, Wallet } from 'xrpl';
 import { OPUL_REWARD_MAX_PERCENT, XRPL_CURRENCY_LIST } from '../../config'
-import OpulenceFaucet from "../../models/OpulenceFaucet"
+import OpulenceStake from "../../models/OpulenceStake"
 import { calcRewardFromNFTs, getBalanceOfOpulence, getBalanceOfXrp, getBalances, getClient, getMultipleBalances } from '../../utils/xrpl-utils';
-import { getNFTOwnersFromIssuerAndTaxon, getRewardsForFaucet } from '../../utils/api-utils';
+import { getNFTOwnersFromIssuerAndTaxon, getCountsForStake } from '../../utils/api-utils';
 
 const opulenceToken = XRPL_CURRENCY_LIST[0];
-const minHoldingAmountForFaucet = parseInt(process.env.HOLDING_AMOUNT_FOR_FAUCET);
+const minHoldingAmountForStake = parseInt(process.env.HOLDING_AMOUNT_FOR_FAUCET);
 
-const getAccountRegisteredOpulFaucet = async () => {
+const getAccountRegisteredOpulStake = async () => {
   const pageSize = 100; // Number of documents to retrieve per query
   let page = 0;
   const accounts: any[] = [];
   while (true) {
-    const _stakers = await OpulenceFaucet.find()
+    const _stakers = await OpulenceStake.find()
       .skip(page * pageSize)
       .limit(pageSize);
     if (_stakers.length === 0) {
@@ -34,30 +34,56 @@ const getAccountRegisteredOpulFaucet = async () => {
 async function calcRewardAndSaveData() {
   const client = getClient();
   await client.connect();
-  const stakers = await getAccountRegisteredOpulFaucet();
+  const stakers = await getAccountRegisteredOpulStake();
   const accounts = stakers.map(staker => staker.walletAddress);
   const opulbalances = await getMultipleBalances(accounts, opulenceToken.currency);
-  const rewards = await getRewardsForFaucet();
+  const counts = await getCountsForStake();
+  let tier_count_0 = 0;
+  let tier_count_1 = 0;
+  let tier_count_2 = 0;
+  Object.keys(counts).map(account => {
+    const count = counts[account];
+    if(count > 30) {
+      tier_count_2++;
+      counts[account] = 2;
+    }
+    else if(count > 10) {
+      tier_count_1++;
+      counts[account] = 1;
+    }
+    else if(count > 0) {
+      tier_count_0++;
+      counts[account] = 0;
+    }
+  });
 
-  if(Object.keys(rewards).length > stakers.length) {
+  const tier_daily_rewards = [
+    Math.floor(parseInt(process.env.REWARD_FOR_TIER_0) * Math.min(1 / tier_count_0, OPUL_REWARD_MAX_PERCENT / 100) / 365 * 1e6),
+    Math.floor(parseInt(process.env.REWARD_FOR_TIER_1) * Math.min(1 / tier_count_1, OPUL_REWARD_MAX_PERCENT / 100) / 365 * 1e6),
+    Math.floor(parseInt(process.env.REWARD_FOR_TIER_2) * Math.min(1 / tier_count_2, OPUL_REWARD_MAX_PERCENT / 100) / 365 * 1e6),
+  ];
+  if(Object.keys(counts).length > stakers.length) {
     const savePromises = stakers.map(async staker => {
       const balance = opulbalances[staker.walletAddress][0]?.value;
-      if(parseFloat(balance || "0") < minHoldingAmountForFaucet) return;
-      if(rewards[staker.walletAddress] > 0) {
-        await staker.updateOne({
-          reward: staker.reward + rewards[staker.walletAddress]
-        });
-      }
+      if(parseFloat(balance || "0") < minHoldingAmountForStake) return;
+      
+      const count = counts[staker.walletAddress];
+      if(count > 2) return;
+      
+      const reward = tier_daily_rewards[count];
+      await staker.updateOne({
+        reward: staker.reward + reward
+      });
     });
     await Promise.all(savePromises);
   } else {
-    const savePromises = Object.keys(rewards).map(async account => {
+    const savePromises = Object.keys(counts).map(async account => {
       const balance = opulbalances[account][0]?.value;
-      if(parseFloat(balance || "0") < minHoldingAmountForFaucet) return;
-      if(rewards[account] > 0) {
+      if(parseFloat(balance || "0") < minHoldingAmountForStake) return;
+      if(counts[account] > 0) {
         const staker = stakers.find(staker => staker.walletAddress === account)
         staker.updateOne({
-          reward: staker.reward + rewards[staker.walletAddress]
+          reward: staker.reward + counts[staker.walletAddress]
         });
       }
     });
@@ -74,9 +100,9 @@ const runDrops = async () => {
   const startTime = new Date();
   await calcRewardAndSaveData();
   const costTime = new Date().getTime() - startTime.getTime();
-  console.log("costTimeForFaucet", costTime);
+  console.log("costTimeForStake", costTime);
   
-  console.log("Saved successfully for faucet.");
+  console.log("Saved successfully for stake.");
 }
 
 export default runDrops;

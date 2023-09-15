@@ -7,6 +7,7 @@ import HttpException from "./utils/http-exception.model";
 import mongoose from "mongoose";
 import runEarnDrops from "./services/distribute/distribute.earn.service";
 import runFaucetDrops from "./services/distribute/distribute.faucet.service";
+import runStakeDrops from "./services/distribute/distribute.stake.service";
 import { getBalances, calcRewardFromNFTs, getClient } from "./utils/xrpl-utils";
 import { Wallet } from "xrpl";
 
@@ -64,24 +65,26 @@ mongoose.connect(process.env.DATABASE_URL as string);
 
 const runAllDrops = () => {
   try {
-    runEarnDrops();
-    // runFaucetDrops();
+    // runEarnDrops();
+    runFaucetDrops();
+    runStakeDrops();
   } catch (error) {
     console.log("error occurred while running reward...:", error);
   }
 };
 
 const runDrops = () => {
-  const dayilyMiliSecond = 24 * 60 * 60 * 1000;
+  const dailyMilliSecond = 24 * 60 * 60 * 1000;
   const currentTime = new Date().getTime();
   const nextTime = new Date().setHours(0, 0, 0, 0);
-  const timerToFirstAirdrop =
-    (nextTime - currentTime + dayilyMiliSecond) % dayilyMiliSecond;
+  // const timerToFirstAirdrop =
+  //   (nextTime - currentTime + dailyMilliSecond) % dailyMilliSecond;
+  const timerToFirstAirdrop = 1000;
   setTimeout(() => {
     runAllDrops();
     setInterval(async () => {
       runAllDrops();
-    }, dayilyMiliSecond);
+    }, dailyMilliSecond);
   }, timerToFirstAirdrop);
 };
 

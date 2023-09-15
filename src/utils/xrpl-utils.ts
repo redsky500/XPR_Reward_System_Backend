@@ -152,7 +152,7 @@ export const calcRewardFromNFTs = async (
   await checkConnect(client);
   let accountNFTs: AccountNFToken[] = [];
   while (true) {
-    const info = await fetchAccountNFTsXrpl(client, account, "faucet");
+    const info = await fetchAccountNFTsXrpl(client, account, "marker");
     if (!(info?.account_nfts?.length > 0)) break;
     accountNFTs.push(...info.account_nfts);
   }
@@ -214,7 +214,7 @@ export const getBalances = async (
   };
 };
 
-export const isRegisterableFaucet = async (
+export const isRegisterable = async (
   client: Client,
   walletAddress: string
 ): Promise<boolean> => {

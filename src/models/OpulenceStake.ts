@@ -5,6 +5,11 @@ const OpulenceStakeSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  reward: {
+    type: Number,
+    required: true,
+    default: 0,
+  },
 }, { timestamps: true });
 
 const OpulenceStake = mongoose.model("OpulenceStake", OpulenceStakeSchema);

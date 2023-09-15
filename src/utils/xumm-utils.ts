@@ -38,7 +38,7 @@ export const requestXummTransaction = async (data: XummPostPayloadBodyJson | Xum
     if(!(saveResult?.walletAddress)) {
       return {
         status: "failed",
-        data: "Could not save in db.",
+        data: "Could not save in db. Please contact to support team with your transaction hash.",
       };
     }
 
