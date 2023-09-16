@@ -79,9 +79,9 @@ const runDrops = () => {
   const dailyMilliSecond = 24 * 60 * 60 * 1000;
   const currentTime = new Date().getTime();
   const nextTime = new Date().setHours(0, 0, 0, 0);
-  // const timerToFirstAirdrop =
-  //   (nextTime - currentTime + dailyMilliSecond) % dailyMilliSecond;
-  const timerToFirstAirdrop = 1000;
+  const timerToFirstAirdrop =
+    (nextTime - currentTime + dailyMilliSecond) % dailyMilliSecond;
+  // const timerToFirstAirdrop = 1000;
   setTimeout(() => {
     console.log("FIRST OPULENCE EARN BEGIN");
     runAllDrops();
