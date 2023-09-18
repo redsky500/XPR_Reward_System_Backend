@@ -1,4 +1,5 @@
 import axios from "axios";
+import {sleep} from "sleep";
 
 type NFTHoldByAccount = {
   [account: string]: number;
@@ -62,19 +63,38 @@ export const getCountsForStake = async () => {
 
 export const getCountsForArt = async () => {
   const { QUEEN_ADDRESS, JOKER_ADDRESS, KING_ADDRESS, QUEEN_TAXON, JOKER_TAXON, KING_TAXON } = process.env
-  const queen_holders = await getNFTOwnersFromIssuerAndTaxon(QUEEN_ADDRESS, QUEEN_TAXON);
-  const joker_holders = await getNFTOwnersFromIssuerAndTaxon(JOKER_ADDRESS, JOKER_TAXON);
-  const king_holders = await getNFTOwnersFromIssuerAndTaxon(KING_ADDRESS, KING_TAXON);
+  const nfts = [
+    {
+      address: QUEEN_ADDRESS,
+      taxon: QUEEN_TAXON,
+    },
+    {
+      address: JOKER_ADDRESS,
+      taxon: JOKER_TAXON,
+    },
+    {
+      address: KING_ADDRESS,
+      taxon: KING_TAXON,
+    },
+  ];
 
   const counts: NFTHoldByAccount = {};
-  queen_holders.map((holder: any) => {
-    counts[holder.owner] = holder.count;
-  });
-  joker_holders.map((holder: any) => {
-    counts[holder.owner] = (counts[holder.owner] || 0) + holder.count;
-  });
-  king_holders.map((holder: any) => {
-    counts[holder.owner] = (counts[holder.owner] || 0) + holder.count;
+  const owners = [];
+  let api_call_count = 0;
+  let startTime = new Date().getTime() - 60e3;
+  for (const nft of nfts) {
+    if(api_call_count % 1 === 0) {
+      const timeRemaining = Math.ceil((new Date().getTime() - startTime) / 1e3);
+      if(timeRemaining < 60 + 1) sleep(timeRemaining);
+      startTime = new Date().getTime();
+    }
+    const holders = await getNFTOwnersFromIssuerAndTaxon(nft.address, nft.taxon);
+    owners.push(...holders);
+    api_call_count++;
+  }
+
+  owners.map((owner: any) => {
+    counts[owner.owner] = owner.count;
   });
 
   return counts;

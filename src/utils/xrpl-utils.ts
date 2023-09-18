@@ -84,17 +84,27 @@ export const fetchAccountNFTsXrpl = async (
   client: Client,
   account: string,
   marker?: string
-): Promise<AccountNFTsResponse["result"] | undefined> => {
+): Promise<AccountNFToken[]> => {
   try {
+    const accountNFTs: AccountNFToken[] = [];
     const payload: AccountNFTsRequest = {
       command: "account_nfts",
       account: account,
       ledger_index: "validated",
       limit: 30,
-      marker: marker || undefined,
     };
-    const res = await client.request(payload);
-    return res.result;
+    let res = await client.request(payload);
+
+    while (true) {
+      accountNFTs.push(...res.result.account_nfts);
+      const {marker} = res.result;
+      if (marker === undefined) {
+        break
+      }
+      payload.marker = marker;
+      res = await client.request(payload);
+    }
+    return accountNFTs;
   } catch (error) {
     return;
   }
@@ -155,13 +165,8 @@ export const calcRewardFromNFTs = async (
   account: string
 ): Promise<number> => {
   await checkConnect(client);
-  let accountNFTs: AccountNFToken[] = [];
-  while (true) {
-    const info = await fetchAccountNFTsXrpl(client, account, "marker");
-    if (!(info?.account_nfts?.length > 0)) break;
-    accountNFTs.push(...info.account_nfts);
-  }
-
+  let accountNFTs: AccountNFToken[] = await fetchAccountNFTsXrpl(client, account);
+  
   const queenReward = parseFloat(process.env.QUEEN_REWARD);
   const jokerReward = parseFloat(process.env.JOKER_REWARD);
   const kingReward = parseFloat(process.env.KING_REWARD);
@@ -225,7 +230,7 @@ export const isRegisterable = async (
 ): Promise<boolean> => {
   await checkConnect(client);
   const { oplBalance } = await getBalances(client, walletAddress);
-  if (oplBalance > parseInt(process.env.HOLDING_AMOUNT_FOR_FAUCET)) {
+  if (oplBalance >= parseInt(process.env.HOLDING_AMOUNT_FOR_FAUCET)) {
     return false;
   }
 

@@ -27,12 +27,12 @@ export const createOpulenceArt = async (walletAddress: string, user_token: strin
 
   const registerable = await isRegisterable(client, walletAddress);
   await client.disconnect();
-  // if (!registerable) {
-  //   return {
-  //     status: "failed",
-  //     data: "Not enough balance! Please check the conditions."
-  //   };
-  // }
+  if (!registerable) {
+    return {
+      status: "failed",
+      data: "Not enough balance! Please check the conditions."
+    };
+  }
 
   const opulenceToken = XRPL_CURRENCY_LIST[0];
 

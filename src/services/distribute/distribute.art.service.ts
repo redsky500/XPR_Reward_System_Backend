@@ -1,7 +1,7 @@
 import { AccountLinesResponse, AccountLinesTrustline, Client, Transaction, Wallet } from 'xrpl';
 import { OPUL_REWARD_MAX_PERCENT, XRPL_CURRENCY_LIST } from '../../config'
 import OpulenceArt from "../../models/OpulenceArt"
-import { calcRewardFromNFTs, getArtWallet, getBalanceOfOpulence, getBalanceOfXrp, getBalances, getClient, getMultipleBalances, requestXrpTransaction } from '../../utils/xrpl-utils';
+import { getArtWallet, getBalanceOfOpulence, getBalanceOfXrp, getBalances, getClient, getMultipleBalances, requestXrpTransaction } from '../../utils/xrpl-utils';
 import { getNFTOwnersFromIssuerAndTaxon, getCountsForArt } from '../../utils/api-utils';
 
 const opulenceToken = XRPL_CURRENCY_LIST[0];

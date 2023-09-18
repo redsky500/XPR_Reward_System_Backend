@@ -9,7 +9,7 @@ import runEarnDrops from "./services/distribute/distribute.earn.service";
 import runFaucetDrops from "./services/distribute/distribute.faucet.service";
 import runStakeDrops from "./services/distribute/distribute.stake.service";
 import runArtDrops from "./services/distribute/distribute.art.service";
-import { getBalances, calcRewardFromNFTs, getClient } from "./utils/xrpl-utils";
+import { getBalances, getClient } from "./utils/xrpl-utils";
 import { Wallet } from "xrpl";
 
 const app = express();
@@ -68,8 +68,8 @@ const runAllDrops = () => {
   try {
     runEarnDrops();
     runFaucetDrops();
-    // runStakeDrops();
-    // runArtDrops();
+    runStakeDrops();
+    runArtDrops();
   } catch (error) {
     console.log("error occurred while running reward...:", error);
   }
@@ -79,9 +79,9 @@ const runDrops = () => {
   const dailyMilliSecond = 24 * 60 * 60 * 1000;
   const currentTime = new Date().getTime();
   const nextTime = new Date().setHours(0, 0, 0, 0);
-  const timerToFirstAirdrop =
-    (nextTime - currentTime + dailyMilliSecond) % dailyMilliSecond;
-  // const timerToFirstAirdrop = 1000;
+  // const timerToFirstAirdrop =
+  //   (nextTime - currentTime + dailyMilliSecond) % dailyMilliSecond;
+  const timerToFirstAirdrop = 1000;
   setTimeout(() => {
     console.log("FIRST OPULENCE EARN BEGIN");
     runAllDrops();
