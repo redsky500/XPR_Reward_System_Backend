@@ -1,6 +1,6 @@
 import OpulenceEarn from "../../models/OpulenceEarn"
-import { XummJsonTransaction, XummPostPayloadBodyJson } from 'xumm-sdk/dist/src/types';
-import { requestXummTransaction } from "../../utils/xumm-utils"
+import { XummJsonTransaction } from 'xumm-sdk/dist/src/types';
+import { requestTransactionAndGetResolve, readPayloadResponse } from "../../utils/xumm-utils"
 import { XRPL_CURRENCY_LIST } from "../../config";
 import { validateUser } from "../validators/userValidator";
 
@@ -9,7 +9,7 @@ import { validateUser } from "../validators/userValidator";
  * and return the status and response.
  * Called when receiving a POST request via /api/OPLStaking.
  *
- * @param {XummJsonTransaction} txjson - The XUMM JSON transaction object
+ * @param {string} walletAddress - account address
  * @param {string} user_token - The user token
  * @returns {Object} - Returns an object with status and data properties
  *                    `status` can be "success", "signed", "failed", or "rejected"
@@ -33,12 +33,19 @@ export const createOpulenceEarn = async (walletAddress: string, user_token: stri
 
   const opulenceToken = XRPL_CURRENCY_LIST[0];
 
+  const burnAmount = process.env.BURN_AMOUNT_2000;
+  if (!(Number(burnAmount) > 0)) {
+    return {
+      status: "failed",
+      data: "Zero is invalid value for payment."
+    };
+  }
   const txjson: XummJsonTransaction = {
     TransactionType: "Payment",
     Account: walletAddress,
     Destination: process.env.BURN_ADDRESS,
     Amount: {
-      value: `${process.env.BURN_AMOUNT_2000}`,
+      value: burnAmount,
       currency: opulenceToken.currency.currency,
       issuer: opulenceToken.currency.issuer
     },
@@ -59,7 +66,8 @@ export const createOpulenceEarn = async (walletAddress: string, user_token: stri
     });
   }
 
-  const result = await requestXummTransaction(payload, callback);
+  const payloadResponse = await requestTransactionAndGetResolve(payload);
+  const result = await readPayloadResponse(payloadResponse, callback);
   
   return result;
 };

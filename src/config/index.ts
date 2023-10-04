@@ -56,3 +56,33 @@ export const XRPL_CURRENCY_LIST: {
     },
   },
 ];
+
+export const collection_QUEEN = {
+  address: process.env.QUEEN_ADDRESS,
+  taxson: parseInt(process.env.QUEEN_TAXON),
+  reward: parseFloat(process.env.QUEEN_REWARD),
+};
+export const collection_JOKER = {
+  address: process.env.JOKER_ADDRESS,
+  taxson: parseInt(process.env.JOKER_TAXON),
+  reward: parseFloat(process.env.JOKER_REWARD),
+};
+export const collection_KING = {
+  address: process.env.KING_ADDRESS,
+  taxson: parseInt(process.env.KING_TAXON),
+  reward: parseFloat(process.env.KING_REWARD),
+};
+
+export const tierRewards = [
+  parseInt(process.env.REWARD_FOR_STAKE_TIER_0),
+  parseInt(process.env.REWARD_FOR_STAKE_TIER_1),
+  parseInt(process.env.REWARD_FOR_STAKE_TIER_2),
+];
+
+export const minHoldingAmountForStake = parseInt(
+  process.env.HOLDING_AMOUNT_FOR_STAKE
+);
+
+export const minHoldingAmountForArt = parseInt(
+  process.env.HOLDING_AMOUNT_FOR_ART
+);

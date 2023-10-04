@@ -1,144 +1,114 @@
-import { XummJsonTransaction } from "xumm-sdk/dist/src/types";
+import { XummPostPayloadBodyJson } from "xumm-sdk/dist/src/types";
 import { XRPL_CURRENCY_LIST } from "../../config";
-import OpulenceFaucet from "../../models/OpulenceFaucet"
-import { requestXummTransaction, requestVerifyUserToken, validateAccount } from "../../utils/xumm-utils";
-import { getBalances, getClient, getFaucetWallet, isRegisterable, requestXrpTransaction } from "../../utils/xrpl-utils";
-import { Transaction, TransactionMetadata } from "xrpl";
+import OpulenceFaucet from "../../models/OpulenceFaucet";
+import {
+  requestTransactionAndGetResolve,
+  readPayloadResponse,
+  validateAccount,
+} from "../../utils/xumm-utils";
+import {
+  getClient,
+  getFaucetWallet,
+  isRegisterableFaucetOrStake,
+  requestXrpTransaction,
+} from "../../utils/xrpl-utils";
+import { TransactionMetadata } from "xrpl";
 import { validateUser } from "../validators/userValidator";
 
-export const createOpulenceFaucet = async (walletAddress: string, user_token: string) => {
+export const createOpulenceFaucet = async (
+  walletAddress: string,
+  user_token: string
+) => {
   const { status, data } = await validateUser(walletAddress, user_token);
-  if(status === "failed") {
+  if (status === "failed") {
     return { status, data };
   }
-
   const OPLReward = await OpulenceFaucet.findOne({
     walletAddress,
   });
-  if (OPLReward) {
-    return {
-      status: "failed",
-      data: "User already registered!"
-    };
-  }
+  if (OPLReward) throw "User already registered!";
+  const client = await getClient();
 
-  const client = getClient();
-  await client.connect();
-
-  const registerable = await isRegisterable(client, walletAddress);
+  await isRegisterableFaucetOrStake(client, walletAddress);
   await client.disconnect();
-  if (!registerable) {
-    return {
-      status: "failed",
-      data: "Not enough balance! Please check the conditions."
-    };
-  }
-
   const opulenceToken = XRPL_CURRENCY_LIST[0];
 
-  const txjson: XummJsonTransaction = {
-    TransactionType: "Payment",
-    Account: walletAddress,
-    Destination: process.env.BURN_ADDRESS,
-    Amount: {
-      value: `${process.env.BURN_AMOUNT_1000}`,
-      currency: opulenceToken.currency.currency,
-      issuer: opulenceToken.currency.issuer
+  const burnAmount = process.env.BURN_AMOUNT_1000;
+  if (!(Number(burnAmount) > 0)) {
+    return {
+      status: "failed",
+      data: "Zero is invalid value for payment.",
+    };
+  }
+  const payload: XummPostPayloadBodyJson = {
+    txjson: {
+      TransactionType: "Payment",
+      Account: walletAddress,
+      Destination: process.env.BURN_ADDRESS,
+      Amount: {
+        value: burnAmount,
+        currency: opulenceToken.currency.currency,
+        issuer: opulenceToken.currency.issuer,
+      },
     },
-  };
-
-  const payload = {
-    txjson: txjson,
     user_token,
   };
-
-  /**
-   * insert staker's walletAddress to database
-   * @returns {void}
-   */
-  const callback = async () => (
+  const callback = async () => {
     await OpulenceFaucet.create({
-      walletAddress
-    })
-  );
-
-  const result = await requestXummTransaction(payload, callback);
-  
+      walletAddress,
+    });
+  };
+  const payloadResponse = await requestTransactionAndGetResolve(payload);
+  const result = await readPayloadResponse(payloadResponse, callback);
   return result;
 };
 
-export const claimFaucet = async (walletAddress: string, user_token: string) => {
+export const claimFaucet = async (
+  walletAddress: string,
+  user_token: string
+) => {
   const { status, data } = await validateUser(walletAddress, user_token);
-  if(status === "failed") {
-    return { status, data };
-  }
-  
-  const OPLReward = await OpulenceFaucet.findOne({
-    walletAddress,
-  });
-  if (!OPLReward) {
-    return {
-      status: "failed",
-      data: "User is not registered!"
-    };
-  }
-
+  if (status === "failed") throw data;
+  if (!(await validateAccount(walletAddress, user_token)))
+    throw "Not the account's owner!";
+  const OPLReward = await OpulenceFaucet.findOneAndUpdate(
+    { walletAddress,
+      $or: [
+        { lastUpdated: { $lt: new Date().setHours(0, 0, 0, 0) } },
+        { lastUpdated: { $exists: false } },
+      ], },
+    { reward: 0 }
+  );
+  if (!OPLReward) throw "User is not registered!";
   const reward = OPLReward.reward;
   if (!(reward > 0)) {
     return {
       status: "failed",
-      data: "No claimable amount!"
+      data: "No claimable amount!",
     };
   }
 
-  if (!(await validateAccount(walletAddress, user_token))) {
-    return {
-      status: "failed",
-      data: "Not the account's owner!"
-    };
-  }
+  const client = await getClient();
 
-  const client = getClient();
-  await client.connect();
-  
-  const registerable = await isRegisterable(client, walletAddress);
-  if (!registerable) {
-    return {
-      status: "failed",
-      data: "Not enough balance! Please check the conditions."
-    };
-  }
+  await isRegisterableFaucetOrStake(client, walletAddress);
 
   const wallet = getFaucetWallet();
   const txjson = {
     TransactionType: "Payment",
     Account: wallet.classicAddress,
-    Amount: `${reward}`,
+    Amount: reward.toString(),
     Destination: OPLReward.walletAddress,
   };
   const { result } = await requestXrpTransaction(client, wallet, txjson);
-
   await client.disconnect();
-
   const txMeta = result.meta as TransactionMetadata;
-  if(txMeta?.TransactionResult !== "tesSUCCESS") {
-    return {
-      status: "failed",
-      data: "Something went wrong!"
-    };
-  }
-
-  await OPLReward.updateOne({
-    reward: 0,
-  });
-
   return {
     status: "success",
     data: {
       response: {
         txid: result.hash,
         dispatched_result: txMeta?.TransactionResult,
-      }
+      },
     },
   };
 };

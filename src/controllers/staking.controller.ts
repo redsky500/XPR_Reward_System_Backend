@@ -1,6 +1,9 @@
 import { NextFunction, Request, Response, Router } from "express";
 import { createOpulenceEarn } from "../services/reward/earn.service";
-import { createOpulenceFaucet, claimFaucet } from "../services/reward/faucet.service";
+import {
+  createOpulenceFaucet,
+  claimFaucet,
+} from "../services/reward/faucet.service";
 import { createOpulenceStake } from "../services/reward/stake.service";
 import { createOpulenceArt } from "../services/reward/art.service";
 import OpulenceEarn from "../models/OpulenceEarn"
@@ -20,7 +23,10 @@ router.get(
       });
       res.json(data?.walletAddress);
     } catch (error) {
-      next(error);
+      return res.send({
+        status: "failed",
+        data: typeof error === "string" ? error : undefined,
+      });
     }
   }
 );
@@ -33,7 +39,10 @@ router.post(
       const data = await createOpulenceEarn(account, user_token);
       res.json(data);
     } catch (error) {
-      next(error);
+      return res.send({
+        status: "failed",
+        data: typeof error === "string" ? error : undefined,
+      });
     }
   }
 );
@@ -46,9 +55,12 @@ router.get(
       const data = await OpulenceFaucet.findOne({
         walletAddress: account,
       });
-      res.json(data?.walletAddress);
+      res.json(data);
     } catch (error) {
-      next(error);
+      return res.send({
+        status: "failed",
+        data: typeof error === "string" ? error : undefined,
+      });
     }
   }
 );
@@ -61,7 +73,10 @@ router.post(
       const user = await createOpulenceFaucet(account, user_token);
       res.json(user);
     } catch (error) {
-      next(error);
+      return res.send({
+        status: "failed",
+        data: typeof error === "string" ? error : undefined,
+      });
     }
   }
 );
@@ -74,7 +89,10 @@ router.post(
       const result = await claimFaucet(account, user_token);
       res.json(result);
     } catch (error) {
-      next(error);
+      return res.send({
+        status: "failed",
+        data: typeof error === "string" ? error : undefined,
+      });
     }
   }
 );
@@ -89,7 +107,10 @@ router.get(
       });
       res.json(data?.walletAddress);
     } catch (error) {
-      next(error);
+      return res.send({
+        status: "failed",
+        data: typeof error === "string" ? error : undefined,
+      });
     }
   }
 );
@@ -102,7 +123,10 @@ router.post(
       const user = await createOpulenceStake(account, user_token);
       res.json(user);
     } catch (error) {
-      next(error);
+      return res.send({
+        status: "failed",
+        data: typeof error === "string" ? error : undefined,
+      });
     }
   }
 );
@@ -117,7 +141,10 @@ router.get(
       });
       res.json(data?.walletAddress);
     } catch (error) {
-      next(error);
+      return res.send({
+        status: "failed",
+        data: typeof error === "string" ? error : undefined,
+      });
     }
   }
 );
@@ -130,7 +157,10 @@ router.post(
       const user = await createOpulenceArt(account, user_token);
       res.json(user);
     } catch (error) {
-      next(error);
+      return res.send({
+        status: "failed",
+        data: typeof error === "string" ? error : undefined,
+      });
     }
   }
 );

@@ -1,6 +1,5 @@
-import OpulenceEarn from "../models/OpulenceEarn"
-import { XummJsonTransaction, XummPostPayloadBodyJson } from 'xumm-sdk/dist/src/types';
-import { requestXummTransaction } from "../utils/xumm-utils"
+import { XummJsonTransaction } from 'xumm-sdk/dist/src/types';
+import { requestTransactionAndGetResolve, readPayloadResponse, subscribeTransaction, readPayloadResponseForConnect } from "../utils/xumm-utils";
 
 /**
  * Create a payload and subscribe it for a general XUMM transaction without updating the database,
@@ -21,12 +20,44 @@ const runXummTransaction = async (txjson: XummJsonTransaction, user_token?: stri
     };
   }
 
-  const data = {
+  const payload = {
     txjson: txjson,
     user_token,
   };
+  const payloadResponse = await requestTransactionAndGetResolve(payload);
+  const result = await readPayloadResponse(payloadResponse);
+  
+  return result;
+};
 
-  const result = await requestXummTransaction(data);
+/**
+ * Subscribe a created offer and return the status and response.
+ * Called when receiving a POST request via /api/buyTokenSubscribe.
+ *
+ * @param {string} uuid - The user token
+ * @returns {Object} - Returns an object with status and data properties
+ *                    `status` can be "success", "signed", "failed", or "rejected"
+ *                    `data` represents the response
+ */
+export const subscribe = async (uuid?: string) => {
+  const payloadResponse = await subscribeTransaction(uuid);
+  const result = await readPayloadResponse(payloadResponse);
+  
+  return result;
+};
+
+/**
+ * Subscribe a created offer and return the status and response.
+ * Called when receiving a POST request via /api/buyTokenSubscribe.
+ *
+ * @param {string} uuid - The user token
+ * @returns {Object} - Returns an object with status and data properties
+ *                    `status` can be "success", "signed", "failed", or "rejected"
+ *                    `data` represents the response
+ */
+export const subscribeForConnect = async (uuid?: string) => {
+  const payloadResponse = await subscribeTransaction(uuid);
+  const result = await readPayloadResponseForConnect(payloadResponse);
   
   return result;
 };

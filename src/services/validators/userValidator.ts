@@ -21,6 +21,7 @@ export const validateUser = async (walletAddress: string, user_token: string) =>
       data: "Invalid user token!"
     };
   }
+  
   return {
     status: "success",
     data: "Valid user"

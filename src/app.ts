@@ -9,18 +9,12 @@ import runEarnDrops from "./services/distribute/distribute.earn.service";
 import runFaucetDrops from "./services/distribute/distribute.faucet.service";
 import runStakeDrops from "./services/distribute/distribute.stake.service";
 import runArtDrops from "./services/distribute/distribute.art.service";
-import { getBalances, getClient } from "./utils/xrpl-utils";
-import { Wallet } from "xrpl";
 
 const app = express();
 
 /**
  * App Configuration
  */
-// const client = getClient();
-// client.connect().then(() => {
-//   client.disconnect();
-// });
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -69,7 +63,7 @@ const runAllDrops = () => {
     runEarnDrops();
     runFaucetDrops();
     runStakeDrops();
-    runArtDrops();
+    // runArtDrops();
   } catch (error) {
     console.log("error occurred while running reward...:", error);
   }
@@ -79,15 +73,14 @@ const runDrops = () => {
   const dailyMilliSecond = 24 * 60 * 60 * 1000;
   const currentTime = new Date().getTime();
   const nextTime = new Date().setHours(0, 0, 0, 0);
-  // const timerToFirstAirdrop =
-  //   (nextTime - currentTime + dailyMilliSecond) % dailyMilliSecond;
-  const timerToFirstAirdrop = 1000;
+  const timerToFirstAirdrop = (nextTime - currentTime + dailyMilliSecond) % dailyMilliSecond;
+  // const timerToFirstAirdrop = 1000; // Don't remove this line for testing, will be removed in complete project
   setTimeout(() => {
-    console.log("FIRST OPULENCE EARN BEGIN");
     runAllDrops();
     setInterval(async () => {
-      console.log("DAILY OPULENCE EARN BEGIN");
-      runAllDrops();
+      setTimeout(() => {
+        runAllDrops();
+      }, Math.random() * 600000);
     }, dailyMilliSecond);
   }, timerToFirstAirdrop);
 };

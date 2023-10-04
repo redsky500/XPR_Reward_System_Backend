@@ -1,17 +1,33 @@
 import mongoose from "mongoose";
 
-const OpulenceFaucetSchema = new mongoose.Schema({
-  walletAddress: {
-    type: String,
-    unique: true,
-    required: true,
+export interface IOpulenceFaucetSchema {
+  walletAddress: string;
+  reward: number;
+  lastUpdated: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const OpulenceFaucetSchema = new mongoose.Schema<IOpulenceFaucetSchema>(
+  {
+    walletAddress: {
+      type: String,
+      unique: true,
+      required: true,
+    },
+    reward: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
+    lastUpdated: {
+      type: Date,
+      required: true,
+      default: new Date(0),
+    },
   },
-  reward: {
-    type: Number,
-    required: true,
-    default: 0,
-  },
-}, { timestamps: true });
+  { timestamps: true }
+);
 
 const OpulenceFaucet = mongoose.model("OpulenceFaucet", OpulenceFaucetSchema);
 

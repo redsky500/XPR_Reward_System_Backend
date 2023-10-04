@@ -1,9 +1,8 @@
 import { XummJsonTransaction } from "xumm-sdk/dist/src/types";
 import { XRPL_CURRENCY_LIST } from "../../config";
 import OpulenceArt from "../../models/OpulenceArt"
-import { requestXummTransaction, requestVerifyUserToken, validateAccount } from "../../utils/xumm-utils";
-import { getBalances, getClient, getArtWallet, isRegisterable, requestXrpTransaction } from "../../utils/xrpl-utils";
-import { Transaction, TransactionMetadata } from "xrpl";
+import { requestTransactionAndGetResolve, readPayloadResponse } from "../../utils/xumm-utils";
+import { getClient, isRegisterableArt } from "../../utils/xrpl-utils";
 import { validateUser } from "../validators/userValidator";
 
 export const createOpulenceArt = async (walletAddress: string, user_token: string) => {
@@ -22,31 +21,31 @@ export const createOpulenceArt = async (walletAddress: string, user_token: strin
     };
   }
 
-  const client = getClient();
-  await client.connect();
-
-  const registerable = await isRegisterable(client, walletAddress);
+  const client = await getClient();
+  
+  await isRegisterableArt(client, walletAddress);
   await client.disconnect();
-  if (!registerable) {
+  
+  const opulenceToken = XRPL_CURRENCY_LIST[0];
+  
+  const burnAmount = process.env.BURN_AMOUNT_1000;
+  if (!(Number(burnAmount) > 0)) {
     return {
       status: "failed",
-      data: "Not enough balance! Please check the conditions."
+      data: "Zero is invalid value for payment."
     };
   }
-
-  const opulenceToken = XRPL_CURRENCY_LIST[0];
-
   const txjson: XummJsonTransaction = {
     TransactionType: "Payment",
     Account: walletAddress,
     Destination: process.env.BURN_ADDRESS,
     Amount: {
-      value: `${process.env.BURN_AMOUNT_1000}`,
+      value: burnAmount,
       currency: opulenceToken.currency.currency,
       issuer: opulenceToken.currency.issuer
     },
   };
-
+  
   const payload = {
     txjson: txjson,
     user_token,
@@ -62,7 +61,8 @@ export const createOpulenceArt = async (walletAddress: string, user_token: strin
     })
   );
 
-  const result = await requestXummTransaction(payload, callback);
+  const payloadResponse = await requestTransactionAndGetResolve(payload);
+  const result = await readPayloadResponse(payloadResponse, callback);
   
   return result;
 };
